@@ -36,22 +36,124 @@
         }
 
 
+        /* ==========================================
+           FUNDO
+        ========================================== */
+
+        html {
+            min-height: 100%;
+            background: #101114;
+        }
 
         body {
             margin: 0;
             min-height: 100vh;
-            background: #101114;
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(80, 100, 160, 0.13),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 90% 20%,
+                    rgba(130, 80, 160, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(60, 120, 150, 0.08),
+                    transparent 35%
+                ),
+                #101114;
+            background-attachment: fixed;
             color: #f2f2f2;
             font-family: Inter, sans-serif;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                );
+            background-size: 42px 42px;
+            mask-image: linear-gradient(
+                to bottom,
+                transparent,
+                black 15%,
+                black 85%,
+                transparent
+            );
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                transparent,
+                black 15%,
+                black 85%,
+                transparent
+            );
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 520px;
+            height: 520px;
+            left: -220px;
+            top: 35%;
+            border-radius: 50%;
+            background: rgba(90, 110, 190, 0.07);
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: -1;
+            animation: fundoFlutuar 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes fundoFlutuar {
+
+            from {
+                transform: translate(
+                    0,
+                    -40px
+                );
+            }
+
+            to {
+                transform: translate(
+                    180px,
+                    70px
+                );
+            }
+
+        }
+
+
+        /* ==========================================
+           HEADER
+        ========================================== */
 
         header {
             padding: 20px 40px;
-            background: #15161a;
+            background: rgba(21, 22, 26, 0.88);
             border-bottom: 1px solid #292b30;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            position: relative;
+            z-index: 10;
         }
 
         .logo {
@@ -62,10 +164,15 @@
         .codigo {
             padding: 9px 15px;
             border-radius: 9px;
-            background: #22242a;
+            background: rgba(34, 36, 42, 0.88);
             color: #ccc;
             font-weight: 600;
         }
+
+
+        /* ==========================================
+           MENU
+        ========================================== */
 
         .menu,
         .aba {
@@ -79,6 +186,7 @@
             margin-top: 28px;
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .menu button {
@@ -89,12 +197,37 @@
             color: #bbb;
             font-weight: 700;
             cursor: pointer;
+            transition:
+                background .2s,
+                transform .2s;
+        }
+
+        .menu button:hover {
+            background: #292c33;
+            transform: translateY(-1px);
         }
 
         .menu button.ativo {
             background: #30333a;
             color: #fff;
         }
+
+        .menu button.botao-musica-menu {
+            margin-left: auto;
+            padding: 12px 16px;
+            border: 1px solid #303239;
+            color: #ccc;
+            white-space: nowrap;
+        }
+
+        .menu button.botao-musica-menu:hover {
+            color: #fff;
+        }
+
+
+        /* ==========================================
+           ABAS
+        ========================================== */
 
         .aba {
             display: none;
@@ -106,12 +239,20 @@
             display: block;
         }
 
+
+        /* ==========================================
+           CARDS
+        ========================================== */
+
         .card {
-            background: #18191e;
-            border: 1px solid #292b31;
+            background: rgba(24, 25, 30, 0.91);
+            border: 1px solid rgba(41, 43, 49, 0.95);
             border-radius: 15px;
             padding: 26px;
-            box-shadow: 0 10px 30px #0002;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.18);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         h2 {
@@ -122,6 +263,11 @@
         h3 {
             color: #bbb;
         }
+
+
+        /* ==========================================
+           LOBBY
+        ========================================== */
 
         .lobby-grid {
             display: grid;
@@ -139,6 +285,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
             padding: 13px 15px;
             margin-bottom: 8px;
             background: #22242a;
@@ -149,6 +296,13 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            min-width: 0;
+        }
+
+        .jogador-nome {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .host {
@@ -160,16 +314,49 @@
         .vidas {
             color: #ff7777;
             font-weight: 700;
+            white-space: nowrap;
         }
 
         .pontos-lobby {
             color: #8db4ff;
             font-weight: 700;
             margin-right: 12px;
+            white-space: nowrap;
         }
 
         .eliminado {
             opacity: .45;
+        }
+
+        .jogador-acoes {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-expulsar {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border: 1px solid #4a3030;
+            border-radius: 7px;
+            background: #302326;
+            color: #ff7777;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition:
+                background .2s,
+                transform .2s,
+                border-color .2s;
+        }
+
+        .btn-expulsar:hover {
+            background: #49292d;
+            border-color: #754047;
+            transform: scale(1.05);
         }
 
         .config {
@@ -192,6 +379,11 @@
             font-size: 16px;
             margin-top: 4px;
         }
+
+
+        /* ==========================================
+           JOGO
+        ========================================== */
 
         .jogo-grid {
             display: grid;
@@ -243,6 +435,11 @@
             margin-top: 5px;
         }
 
+
+        /* ==========================================
+           INPUTS
+        ========================================== */
+
         .entrada {
             display: flex;
             gap: 9px;
@@ -283,6 +480,11 @@
             cursor: not-allowed;
         }
 
+
+        /* ==========================================
+           RESPOSTAS
+        ========================================== */
+
         #carros-enviados {
             margin-top: 20px;
             max-height: 230px;
@@ -306,6 +508,11 @@
             color: #999;
             font-size: 12px;
         }
+
+
+        /* ==========================================
+           CHAT
+        ========================================== */
 
         #chat {
             height: 500px;
@@ -334,6 +541,108 @@
             flex: 1;
         }
 
+
+        /* ==========================================
+           NOTIFICAÇÃO DO CHAT
+        ========================================== */
+
+        .notificacao-chat {
+            position: fixed;
+            top: 92px;
+            right: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px 11px 11px;
+            background: rgba(24, 25, 30, 0.96);
+            border: 1px solid #3b3e47;
+            border-radius: 12px;
+            box-shadow:
+                0 12px 35px rgba(0,0,0,0.35);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            cursor: pointer;
+            opacity: 0;
+            transform: translateX(25px) scale(.95);
+            pointer-events: none;
+            transition:
+                opacity .25s ease,
+                transform .25s ease;
+            z-index: 5000;
+        }
+
+        .notificacao-chat.ativa {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .notificacao-icone {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 9px;
+            background: #30333a;
+        }
+
+        .notificacao-icone img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notificacao-texto {
+            min-width: 0;
+        }
+
+        .notificacao-titulo {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 2px;
+        }
+
+        .notificacao-mensagem {
+            max-width: 210px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        @keyframes pulsarNotificacao {
+
+            0% {
+                box-shadow:
+                    0 0 0 0 rgba(141,180,255,0.25),
+                    0 12px 35px rgba(0,0,0,0.35);
+            }
+
+            70% {
+                box-shadow:
+                    0 0 0 9px rgba(141,180,255,0),
+                    0 12px 35px rgba(0,0,0,0.35);
+            }
+
+            100% {
+                box-shadow:
+                    0 0 0 0 rgba(141,180,255,0),
+                    0 12px 35px rgba(0,0,0,0.35);
+            }
+
+        }
+
+        .notificacao-chat.ativa {
+            animation:
+                pulsarNotificacao 1.4s ease-out 2;
+        }
+
+
+        /* ==========================================
+           AVISO
+        ========================================== */
+
         .aviso {
             display: none;
             margin-top: 18px;
@@ -349,6 +658,7 @@
             color: #f77;
             margin-bottom: 15px;
         }
+
 
         /* ==========================================
            INTERVALO
@@ -406,49 +716,6 @@
             cursor: not-allowed;
         }
 
-        /* ==========================================
-           MÚSICA
-        ========================================== */
-
-        .musica-bloco {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            width: 230px;
-            padding: 15px;
-            background: rgba(24, 25, 30, 0.94);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow:
-                0 15px 45px rgba(0,0,0,0.35);
-            z-index: 1000;
-        }
-
-        .musica-titulo {
-            font-size: 13px;
-            font-weight: 700;
-            color: #aaa;
-            margin-bottom: 8px;
-        }
-
-        .botao-musica {
-            width: 100%;
-            padding: 10px;
-            margin: 0;
-            border: 1px solid #303239;
-            border-radius: 9px;
-            background: #22242a;
-            color: #fff;
-            font-family: inherit;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .botao-musica:hover {
-            background: #30333a;
-        }
 
         /* ==========================================
            RANKING
@@ -564,6 +831,11 @@
             color: #111;
         }
 
+
+        /* ==========================================
+           RESPONSIVO
+        ========================================== */
+
         @media(max-width:850px) {
 
             header {
@@ -578,7 +850,39 @@
             .letra {
                 font-size: 80px;
             }
+
+            .notificacao-chat {
+                top: 82px;
+                right: 15px;
+            }
+
         }
+
+
+        @media(max-width:600px) {
+
+            .menu {
+                flex-wrap: wrap;
+            }
+
+            .menu button {
+                padding: 11px 16px;
+            }
+
+            .menu button.botao-musica-menu {
+                margin-left: 0;
+            }
+
+            .jogadores li {
+                padding: 11px;
+            }
+
+            .pontos-lobby {
+                margin-right: 6px;
+            }
+
+        }
+
 
         @media(max-width:500px) {
 
@@ -600,15 +904,28 @@
                 grid-template-columns: 45px 1fr auto;
             }
 
-            .musica-bloco {
-                right: 15px;
-                bottom: 15px;
-                width: 200px;
+            .logo-stopkart {
+                width: 70px;
             }
+
+            .notificacao-chat {
+                left: 15px;
+                right: 15px;
+                width: auto;
+            }
+
+            .codigo {
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+
         }
 
 
-        /* ÍCONES SVG */
+        /* ==========================================
+           ÍCONES SVG
+        ========================================== */
+
         .icone {
             width: 18px;
             height: 18px;
@@ -639,9 +956,11 @@
             object-fit: contain;
             vertical-align: middle;
         }
+
     </style>
 
 </head>
+
 
 <body
     data-codigo="{{ codigo }}"
@@ -650,9 +969,13 @@
     data-modo="{{ modo }}"
     data-jogo-iniciado="{{ 'true' if jogo_iniciado else 'false' }}"
     data-em-intervalo="{{ 'true' if em_intervalo else 'false' }}"
+    data-max-jogadores="{{ max_jogadores }}"
 >
 
-    <!-- MÚSICAS -->
+
+    <!-- ==========================================
+         MÚSICAS
+    ========================================== -->
 
     <audio
         id="musica-lobby"
@@ -665,6 +988,7 @@
         >
 
     </audio>
+
 
     <audio
         id="musica-jogo"
@@ -679,31 +1003,57 @@
     </audio>
 
 
-    <!-- BLOCO DA MÚSICA -->
+    <!-- ==========================================
+         NOTIFICAÇÃO CHAT
+    ========================================== -->
 
-    <div class="musica-bloco">
+    <div
+        id="notificacao-chat"
+        class="notificacao-chat"
+        onclick="abrirChatNotificacao()"
+    >
 
-        <div class="musica-titulo">
-            🎵 música
+        <div class="notificacao-icone">
+
+            <img
+                src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}"
+                alt=""
+            >
+
         </div>
 
-        <button
-            id="botao-musica"
-            class="botao-musica"
-            type="button"
-        >
-            🔊 música ligada
-        </button>
+        <div class="notificacao-texto">
+
+            <div class="notificacao-titulo">
+                nova mensagem
+            </div>
+
+            <div
+                id="notificacao-mensagem"
+                class="notificacao-mensagem"
+            >
+                alguém mandou uma mensagem
+            </div>
+
+        </div>
 
     </div>
 
 
-    <!-- HEADER -->
+    <!-- ==========================================
+         HEADER
+    ========================================== -->
 
     <header>
 
         <div class="logo">
-            <img src="{{ url_for('static', filename='icons/RodaStopkart.png') }}" class="logo-stopkart" alt="">Stopkart
+
+            <img
+                src="{{ url_for('static', filename='icons/RodaStopkart.png') }}"
+                class="logo-stopkart"
+                alt=""
+            >Stopkart
+
         </div>
 
         <div class="codigo">
@@ -713,23 +1063,55 @@
     </header>
 
 
-    <!-- MENU -->
+    <!-- ==========================================
+         MENU
+    ========================================== -->
 
     <div class="menu">
 
         <button
             id="btn-jogo"
             class="ativo"
+            data-aba="jogo"
             onclick="abrirAba('jogo')"
         >
-            <img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone" alt=""> jogo
+
+            <img
+                src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}"
+                class="icone"
+                alt=""
+            >
+
+            jogo
+
         </button>
+
 
         <button
             id="btn-chat"
+            data-aba="chat"
             onclick="abrirAba('chat')"
         >
-            <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat
+
+            <img
+                src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}"
+                class="icone"
+                alt=""
+            >
+
+            chat
+
+        </button>
+
+
+        <!-- MÚSICA AGORA FICA NO MENU -->
+
+        <button
+            id="botao-musica"
+            class="botao-musica-menu"
+            type="button"
+        >
+            🔊 música
         </button>
 
     </div>
@@ -746,18 +1128,39 @@
 
         <div class="lobby-grid">
 
+
             <!-- LOBBY -->
 
             <div class="card">
 
-                <h2><img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone-titulo" alt=""> jogadores</h2>
+                <h2>
+
+                    <img
+                        src="{{ url_for('static', filename='icons/Users_Icon.svg') }}"
+                        class="icone-titulo"
+                        alt=""
+                    >
+
+                    jogadores
+
+                </h2>
+
 
                 <div
                     id="status-conexao"
                     class="conexao"
                 >
-                    <img src="{{ url_for('static', filename='icons/RedCircle_Icon.svg') }}" class="icone" alt=""> conectando...
+
+                    <img
+                        src="{{ url_for('static', filename='icons/RedCircle_Icon.svg') }}"
+                        class="icone"
+                        alt=""
+                    >
+
+                    conectando...
+
                 </div>
+
 
                 <ul
                     id="lista-jogadores"
@@ -771,16 +1174,32 @@
                         <div class="jogador-info">
 
                             <span>
+
                                 {% if jogador.eliminado %}
-                                    <img src="{{ url_for('static', filename='icons/Skull_Icon.svg') }}" class="icone" alt="eliminado">
+
+                                    <img
+                                        src="{{ url_for('static', filename='icons/Skull_Icon.svg') }}"
+                                        class="icone"
+                                        alt="eliminado"
+                                    >
+
                                 {% else %}
-                                    <img src="{{ url_for('static', filename='icons/GreenCircle_Icon.svg') }}" class="icone" alt="online">
+
+                                    <img
+                                        src="{{ url_for('static', filename='icons/GreenCircle_Icon.svg') }}"
+                                        class="icone"
+                                        alt="online"
+                                    >
+
                                 {% endif %}
+
                             </span>
 
-                            <span>
+
+                            <span class="jogador-nome">
                                 {{ jogador.nome }}
                             </span>
+
 
                             {% if jogador.host %}
 
@@ -792,15 +1211,51 @@
 
                         </div>
 
-                        <div>
 
-                            <span class="pontos-lobby">
-                                <img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> {{ jogador.pontos }}
-                            </span>
+                        <div class="jogador-acoes">
 
-                            <span class="vidas">
-                                <img src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}" class="icone" alt=""> {{ jogador.vidas }}
-                            </span>
+                            <div>
+
+                                <span class="pontos-lobby">
+
+                                    <img
+                                        src="{{ url_for('static', filename='icons/Star_Icon.svg') }}"
+                                        class="icone"
+                                        alt=""
+                                    >
+
+                                    {{ jogador.pontos }}
+
+                                </span>
+
+
+                                <span class="vidas">
+
+                                    <img
+                                        src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}"
+                                        class="icone"
+                                        alt=""
+                                    >
+
+                                    {{ jogador.vidas }}
+
+                                </span>
+
+                            </div>
+
+
+                            {% if nome == host and jogador.nome != nome and not jogo_iniciado %}
+
+                            <button
+                                class="btn-expulsar"
+                                type="button"
+                                title="expulsar jogador"
+                                data-jogador="{{ jogador.nome }}"
+                            >
+                                ✕
+                            </button>
+
+                            {% endif %}
 
                         </div>
 
@@ -810,11 +1265,18 @@
 
                 </ul>
 
+
                 <div class="config">
 
                     <div>
 
-                        <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> tempo
+                        <img
+                            src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        tempo
 
                         <strong>
                             {{ tempo }}s
@@ -822,9 +1284,16 @@
 
                     </div>
 
+
                     <div>
 
-                        <img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone" alt=""> máximo
+                        <img
+                            src="{{ url_for('static', filename='icons/Users_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        máximo
 
                         <strong>
                             {{ max_jogadores }}
@@ -841,7 +1310,18 @@
 
             <div class="card">
 
-                <h2><img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone-titulo" alt=""> partida</h2>
+                <h2>
+
+                    <img
+                        src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}"
+                        class="icone-titulo"
+                        alt=""
+                    >
+
+                    partida
+
+                </h2>
+
 
                 <p id="estado-partida">
 
@@ -865,21 +1345,42 @@
 
                 </p>
 
+
                 {% if nome == host and not jogo_iniciado %}
 
                 <button
                     id="botao-comecar"
                     class="acao"
+                    disabled
                 >
-                    <img src="{{ url_for('static', filename='icons/Crown_Icon.svg') }}" class="icone" alt=""> começar jogo
+
+                    <img
+                        src="{{ url_for('static', filename='icons/Crown_Icon.svg') }}"
+                        class="icone"
+                        alt=""
+                    >
+
+                    começar jogo
+
                 </button>
 
+
+                <div
+                    id="aviso-inicio"
+                    class="aviso"
+                    style="display: block;"
+                >
+                    aguardando jogadores...
+                </div>
+
                 {% endif %}
+
 
                 <div
                     id="aviso"
                     class="aviso"
                 ></div>
+
 
                 <!-- INTERVALO -->
 
@@ -892,6 +1393,7 @@
                         ⏸️ intervalo entre rodadas
                     </div>
 
+
                     <div
                         id="intervalo-subtitulo"
                         class="intervalo-subtitulo"
@@ -899,19 +1401,30 @@
                         próxima letra em breve
                     </div>
 
+
                     <div
                         id="tempo-intervalo"
                         class="intervalo-tempo"
                     >
-                        03:00
+                        02:00
                     </div>
+
 
                     <div
                         id="intervalo-info"
                         class="intervalo-info"
                     >
-                        <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat liberado durante o intervalo
+
+                        <img
+                            src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        chat liberado durante o intervalo
+
                     </div>
+
 
                     <button
                         id="btn-pular-intervalo"
@@ -935,6 +1448,7 @@
 
         <div class="jogo-grid">
 
+
             <!-- LETRA -->
 
             <div class="card letra-card">
@@ -942,6 +1456,7 @@
                 <div class="letra-label">
                     letra sorteada
                 </div>
+
 
                 <h1
                     id="letra"
@@ -953,9 +1468,11 @@
                     ?
                 </h1>
 
+
                 <p class="instrucao">
                     digite um modelo de carro
                 </p>
+
 
                 <div class="status">
 
@@ -969,9 +1486,16 @@
 
                     </div>
 
+
                     <div>
 
-                        <img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> pontos
+                        <img
+                            src="{{ url_for('static', filename='icons/Star_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        pontos
 
                         <strong id="meus-pontos">
                             0
@@ -979,9 +1503,16 @@
 
                     </div>
 
+
                     <div>
 
-                        <img src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}" class="icone" alt=""> vidas
+                        <img
+                            src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        vidas
 
                         <strong id="minhas-vidas">
                             3
@@ -989,9 +1520,16 @@
 
                     </div>
 
+
                     <div>
 
-                        <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> tempo
+                        <img
+                            src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}"
+                            class="icone"
+                            alt=""
+                        >
+
+                        tempo
 
                         <strong id="tempo">
                             {{ "%02d:%02d"|format(tempo//60, tempo%60) }}
@@ -1009,8 +1547,17 @@
             <div class="card">
 
                 <h2>
-                    <img src="{{ url_for('static', filename='icons/Car_Icon.svg') }}" class="icone-titulo" alt=""> respostas
+
+                    <img
+                        src="{{ url_for('static', filename='icons/Car_Icon.svg') }}"
+                        class="icone-titulo"
+                        alt=""
+                    >
+
+                    respostas
+
                 </h2>
+
 
                 <div class="entrada">
 
@@ -1021,6 +1568,7 @@
                         autocomplete="off"
                     >
 
+
                     <button
                         id="botao-carro"
                         class="acao"
@@ -1030,6 +1578,7 @@
                     </button>
 
                 </div>
+
 
                 <div id="carros-enviados"></div>
 
@@ -1052,10 +1601,20 @@
         <div class="card">
 
             <h2>
-                <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat da sala
+
+                <img
+                    src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}"
+                    class="icone"
+                    alt=""
+                >
+
+                chat da sala
+
             </h2>
 
+
             <div id="chat"></div>
+
 
             <div class="entrada-chat">
 
@@ -1064,6 +1623,7 @@
                     placeholder="escreva uma mensagem..."
                     autocomplete="off"
                 >
+
 
                 <button
                     id="botao-chat"
@@ -1094,8 +1654,17 @@
                 id="ranking-titulo"
                 class="ranking-titulo"
             >
-                <img src="{{ url_for('static', filename='icons/Tropy_Icon.svg') }}" class="icone-titulo" alt=""> ranking
+
+                <img
+                    src="{{ url_for('static', filename='icons/Tropy_Icon.svg') }}"
+                    class="icone-titulo"
+                    alt=""
+                >
+
+                ranking
+
             </div>
+
 
             <div
                 id="ranking-subtitulo"
@@ -1104,10 +1673,12 @@
                 resultado da rodada
             </div>
 
+
             <div
                 id="ranking-lista"
                 class="ranking-lista"
             ></div>
+
 
             <div class="ranking-botoes">
 
@@ -1127,6 +1698,7 @@
 
 
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
 
     <script>
 
@@ -1154,27 +1726,72 @@
         const souHost =
             meuNome === nomeHost;
 
+        const maxJogadoresSala =
+            Number(
+                dadosPagina.maxJogadores || 0
+            );
 
+
+        // ==========================================
         // ÍCONES SVG
+        // ==========================================
+
         const ICONES = {
-            user: "/static/icons/User_Icon_Icon.svg",
-            rotation: "/static/icons/Rotation_Icon.svg",
-            abc: "/static/icons/ABC_Alphabet_Icon.svg",
-            door: "/static/icons/Door_Icon.svg",
-            star: "/static/icons/Star_Icon.svg",
-            settings: "/static/icons/Settings_Icon.svg",
-            trophy: "/static/icons/Tropy_Icon.svg",
-            timer: "/static/icons/Timer_Icon.svg",
-            skull: "/static/icons/Skull_Icon.svg",
-            red: "/static/icons/RedCircle_Icon.svg",
-            green: "/static/icons/GreenCircle_Icon.svg",
-            car: "/static/icons/Car_Icon.svg",
-            heart: "/static/icons/Heart_Icon.svg",
-            crown: "/static/icons/Crown_Icon.svg",
-            users: "/static/icons/Users_Icon.svg",
-            chat: "/static/icons/Chat_Icon.svg",
-            game: "/static/icons/GameController_Icon.svg",
-            logo: "/static/icons/Logo_Icon.svg"
+
+            user:
+                "/static/icons/User_Icon_Icon.svg",
+
+            rotation:
+                "/static/icons/Rotation_Icon.svg",
+
+            abc:
+                "/static/icons/ABC_Alphabet_Icon.svg",
+
+            door:
+                "/static/icons/Door_Icon.svg",
+
+            star:
+                "/static/icons/Star_Icon.svg",
+
+            settings:
+                "/static/icons/Settings_Icon.svg",
+
+            trophy:
+                "/static/icons/Tropy_Icon.svg",
+
+            timer:
+                "/static/icons/Timer_Icon.svg",
+
+            skull:
+                "/static/icons/Skull_Icon.svg",
+
+            red:
+                "/static/icons/RedCircle_Icon.svg",
+
+            green:
+                "/static/icons/GreenCircle_Icon.svg",
+
+            car:
+                "/static/icons/Car_Icon.svg",
+
+            heart:
+                "/static/icons/Heart_Icon.svg",
+
+            crown:
+                "/static/icons/Crown_Icon.svg",
+
+            users:
+                "/static/icons/Users_Icon.svg",
+
+            chat:
+                "/static/icons/Chat_Icon.svg",
+
+            game:
+                "/static/icons/GameController_Icon.svg",
+
+            logo:
+                "/static/icons/Logo_Icon.svg"
+
         };
 
 
@@ -1201,6 +1818,20 @@
 
         musicaLobby.volume = 0.35;
         musicaJogo.volume = 0.35;
+
+
+        function atualizarBotaoMusica() {
+
+            if (!botaoMusica) {
+                return;
+            }
+
+            botaoMusica.textContent =
+                musicaLigada
+                ? "🔊 música"
+                : "🔇 música";
+
+        }
 
 
         function tocarLobby() {
@@ -1258,17 +1889,20 @@
                 musicaLigada =
                     !musicaLigada;
 
+
                 if (musicaLigada) {
 
-                    botaoMusica.textContent =
-                        "🔊 música ligada";
+                    atualizarBotaoMusica();
+
 
                     if (
                         musicaJogo.currentTime > 0 &&
                         !musicaJogo.paused
                     ) {
 
-                        musicaJogo.play().catch(() => {});
+                        musicaJogo.play().catch(
+                            () => {}
+                        );
 
                     } else {
 
@@ -1280,13 +1914,15 @@
 
                     pararMusicas();
 
-                    botaoMusica.textContent =
-                        "🔇 música desligada";
+                    atualizarBotaoMusica();
 
                 }
 
             }
         );
+
+
+        atualizarBotaoMusica();
 
 
         document.addEventListener(
@@ -1300,7 +1936,9 @@
                         !musicaJogo.paused
                     ) {
 
-                        musicaJogo.play().catch(() => {});
+                        musicaJogo.play().catch(
+                            () => {}
+                        );
 
                     } else {
 
@@ -1357,6 +1995,11 @@
                 "botao-comecar"
             );
 
+        const avisoInicio =
+            document.getElementById(
+                "aviso-inicio"
+            );
+
         const intervalo =
             document.getElementById(
                 "intervalo"
@@ -1389,8 +2032,244 @@
 
         let jaRespondi = false;
 
-        let jogoIniciadoLocal = document.body.dataset.jogoIniciado === "true";
-        let emIntervalo = document.body.dataset.emIntervalo === "true";
+        let jogoIniciadoLocal =
+            document.body.dataset.jogoIniciado === "true";
+
+        let emIntervalo =
+            document.body.dataset.emIntervalo === "true";
+
+        let quantidadeJogadoresAtual =
+            document.querySelectorAll(
+                "#lista-jogadores > li"
+            ).length;
+
+
+        // ==========================================
+        // SOM DE NOTIFICAÇÃO
+        // ==========================================
+
+        let audioContext = null;
+
+
+        function prepararAudioNotificacao() {
+
+            if (!audioContext) {
+
+                const AudioContext =
+                    window.AudioContext ||
+                    window.webkitAudioContext;
+
+                if (!AudioContext) {
+                    return;
+                }
+
+                audioContext =
+                    new AudioContext();
+
+            }
+
+            if (
+                audioContext.state ===
+                "suspended"
+            ) {
+
+                audioContext.resume().catch(
+                    () => {}
+                );
+
+            }
+
+        }
+
+
+        document.addEventListener(
+            "click",
+            prepararAudioNotificacao,
+            {
+                once: true
+            }
+        );
+
+
+        function tocarSomChat() {
+
+            try {
+
+                prepararAudioNotificacao();
+
+                if (!audioContext) {
+                    return;
+                }
+
+                const agora =
+                    audioContext.currentTime;
+
+                const oscilador =
+                    audioContext.createOscillator();
+
+                const ganho =
+                    audioContext.createGain();
+
+
+                oscilador.type =
+                    "sine";
+
+                oscilador.frequency.setValueAtTime(
+                    880,
+                    agora
+                );
+
+                oscilador.frequency.setValueAtTime(
+                    1174,
+                    agora + 0.08
+                );
+
+
+                ganho.gain.setValueAtTime(
+                    0.0001,
+                    agora
+                );
+
+                ganho.gain.exponentialRampToValueAtTime(
+                    0.10,
+                    agora + 0.015
+                );
+
+                ganho.gain.exponentialRampToValueAtTime(
+                    0.0001,
+                    agora + 0.20
+                );
+
+
+                oscilador.connect(
+                    ganho
+                );
+
+                ganho.connect(
+                    audioContext.destination
+                );
+
+
+                oscilador.start(
+                    agora
+                );
+
+                oscilador.stop(
+                    agora + 0.21
+                );
+
+            } catch (erro) {
+
+                console.log(
+                    "não foi possível tocar o som:",
+                    erro
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // NOTIFICAÇÃO CHAT
+        // ==========================================
+
+        const notificacaoChat =
+            document.getElementById(
+                "notificacao-chat"
+            );
+
+        const notificacaoMensagem =
+            document.getElementById(
+                "notificacao-mensagem"
+            );
+
+
+        let timeoutNotificacao = null;
+
+
+        function chatEstaAberto() {
+
+            const chatAba =
+                document.getElementById(
+                    "chat-aba"
+                );
+
+            return (
+                chatAba &&
+                chatAba.classList.contains(
+                    "ativa"
+                )
+            );
+
+        }
+
+
+        function mostrarNotificacaoChat(
+            nome,
+            mensagem
+        ) {
+
+            if (modoSolo) {
+                return;
+            }
+
+            if (chatEstaAberto()) {
+                return;
+            }
+
+
+            notificacaoMensagem.textContent =
+                nome + ": " + mensagem;
+
+            notificacaoChat.classList.add(
+                "ativa"
+            );
+
+
+            tocarSomChat();
+
+
+            if (timeoutNotificacao) {
+
+                clearTimeout(
+                    timeoutNotificacao
+                );
+
+            }
+
+
+            timeoutNotificacao =
+                setTimeout(
+                    () => {
+
+                        esconderNotificacaoChat();
+
+                    },
+                    5000
+                );
+
+        }
+
+
+        function esconderNotificacaoChat() {
+
+            notificacaoChat.classList.remove(
+                "ativa"
+            );
+
+        }
+
+
+        function abrirChatNotificacao() {
+
+            esconderNotificacaoChat();
+
+            abrirAba("chat");
+
+            campoChat.focus();
+
+        }
 
 
         // ==========================================
@@ -1446,6 +2325,7 @@
             botaoChat.disabled =
                 bloqueado;
 
+
             if (bloqueado) {
 
                 campoChat.placeholder =
@@ -1455,6 +2335,85 @@
 
                 campoChat.placeholder =
                     "escreva uma mensagem...";
+
+            }
+
+        }
+
+
+        // ==========================================
+        // BOTÃO COMEÇAR
+        // ==========================================
+
+        function atualizarBotaoComecar(
+            quantidade
+        ) {
+
+            if (
+                !botaoComecar ||
+                !souHost ||
+                jogoIniciadoLocal
+            ) {
+                return;
+            }
+
+
+            quantidadeJogadoresAtual =
+                quantidade;
+
+
+            const salaCheia =
+                maxJogadoresSala > 0 &&
+                quantidade >= maxJogadoresSala;
+
+
+            botaoComecar.disabled =
+                !salaCheia;
+
+
+            if (salaCheia) {
+
+                botaoComecar.innerHTML = `
+                    <img
+                        src="${ICONES.crown}"
+                        class="icone"
+                        alt=""
+                    >
+                    começar jogo
+                `;
+
+
+                if (avisoInicio) {
+
+                    avisoInicio.textContent =
+                        "todos os jogadores entraram. o jogo pode começar!";
+
+                    avisoInicio.style.display =
+                        "none";
+
+                }
+
+            } else {
+
+                botaoComecar.innerHTML = `
+                    <img
+                        src="${ICONES.crown}"
+                        class="icone"
+                        alt=""
+                    >
+                    aguarde jogadores
+                `;
+
+
+                if (avisoInicio) {
+
+                    avisoInicio.textContent =
+                        `aguardando jogadores... ${quantidade}/${maxJogadoresSala}`;
+
+                    avisoInicio.style.display =
+                        "block";
+
+                }
 
             }
 
@@ -1474,6 +2433,7 @@
                 return;
             }
 
+
             document
                 .querySelectorAll(".aba")
                 .forEach(
@@ -1483,9 +2443,10 @@
                         )
                 );
 
+
             document
                 .querySelectorAll(
-                    ".menu button"
+                    ".menu button[data-aba]"
                 )
                 .forEach(
                     x =>
@@ -1494,11 +2455,13 @@
                         )
                 );
 
+
             if (aba === "jogo") {
 
                 document
                     .getElementById("jogo")
                     .classList.add("ativa");
+
 
                 document
                     .getElementById("btn-jogo")
@@ -1516,12 +2479,25 @@
                         "btn-chat"
                     );
 
-                if (!chatAba || !btnChat) {
+
+                if (
+                    !chatAba ||
+                    !btnChat
+                ) {
                     return;
                 }
 
-                chatAba.classList.add("ativa");
-                btnChat.classList.add("ativo");
+
+                chatAba.classList.add(
+                    "ativa"
+                );
+
+                btnChat.classList.add(
+                    "ativo"
+                );
+
+
+                esconderNotificacaoChat();
 
             }
 
@@ -1541,6 +2517,7 @@
 
                 statusConexao.style.color =
                     "#6fda8b";
+
 
                 socket.emit(
                     "entrar_sala",
@@ -1594,6 +2571,21 @@
                     data.mensagem
                 );
 
+
+                if (
+                    botaoComecar &&
+                    !jogoIniciadoLocal
+                ) {
+
+                    botaoComecar.disabled =
+                        false;
+
+                    atualizarBotaoComecar(
+                        quantidadeJogadoresAtual
+                    );
+
+                }
+
             }
         );
 
@@ -1608,11 +2600,14 @@
 
                 atualizarJogadores(data);
 
+
                 jogoIniciadoLocal =
                     !!data.jogo_iniciado;
 
+
                 emIntervalo =
                     !!data.em_intervalo;
+
 
                 if (
                     data.jogo_iniciado &&
@@ -1632,6 +2627,7 @@
 
                 }
 
+
                 atualizarChatEstado();
 
             }
@@ -1649,7 +2645,13 @@
                     "lista-jogadores"
                 );
 
+
             lista.innerHTML = "";
+
+
+            quantidadeJogadoresAtual =
+                data.jogadores.length;
+
 
             data.jogadores.forEach(
                 jogador => {
@@ -1658,6 +2660,7 @@
                         document.createElement(
                             "li"
                         );
+
 
                     if (
                         jogador.eliminado
@@ -1669,49 +2672,245 @@
 
                     }
 
-                    li.innerHTML = `
 
-                        <div class="jogador-info">
+                    const info =
+                        document.createElement(
+                            "div"
+                        );
 
-                            <span>
-                                ${
-                                    jogador.eliminado
-                                    ? `<img src="${ICONES.skull}" class="icone" alt="eliminado">`
-                                    : `<img src="${ICONES.green}" class="icone" alt="online">`
-                                }
-                            </span>
+                    info.className =
+                        "jogador-info";
 
-                            <span>
-                                ${escapeHtml(
-                                    jogador.nome
-                                )}
-                            </span>
 
-                            ${
-                                jogador.host
-                                ?
-                                '<span class="host">HOST</span>'
-                                :
-                                ""
-                            }
+                    const iconeStatus =
+                        document.createElement(
+                            "img"
+                        );
 
-                        </div>
+                    iconeStatus.src =
+                        jogador.eliminado
+                        ? ICONES.skull
+                        : ICONES.green;
 
-                        <div>
+                    iconeStatus.className =
+                        "icone";
 
-                            <span class="pontos-lobby">
-                                <img src="${ICONES.star}" class="icone" alt=""> ${jogador.pontos || 0}
-                            </span>
+                    iconeStatus.alt =
+                        jogador.eliminado
+                        ? "eliminado"
+                        : "online";
 
-                            <span class="vidas">
-                                <img src="${ICONES.heart}" class="icone" alt=""> ${jogador.vidas}
-                            </span>
 
-                        </div>
+                    info.appendChild(
+                        iconeStatus
+                    );
 
+
+                    const nome =
+                        document.createElement(
+                            "span"
+                        );
+
+                    nome.className =
+                        "jogador-nome";
+
+                    nome.textContent =
+                        jogador.nome;
+
+
+                    info.appendChild(
+                        nome
+                    );
+
+
+                    if (
+                        jogador.host
+                    ) {
+
+                        const host =
+                            document.createElement(
+                                "span"
+                            );
+
+                        host.className =
+                            "host";
+
+                        host.textContent =
+                            "HOST";
+
+                        info.appendChild(
+                            host
+                        );
+
+                    }
+
+
+                    const acoes =
+                        document.createElement(
+                            "div"
+                        );
+
+                    acoes.className =
+                        "jogador-acoes";
+
+
+                    const pontosVidas =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    const pontos =
+                        document.createElement(
+                            "span"
+                        );
+
+                    pontos.className =
+                        "pontos-lobby";
+
+                    pontos.innerHTML = `
+                        <img
+                            src="${ICONES.star}"
+                            class="icone"
+                            alt=""
+                        >
+                        ${jogador.pontos || 0}
                     `;
 
-                    lista.appendChild(li);
+
+                    const vidas =
+                        document.createElement(
+                            "span"
+                        );
+
+                    vidas.className =
+                        "vidas";
+
+                    vidas.innerHTML = `
+                        <img
+                            src="${ICONES.heart}"
+                            class="icone"
+                            alt=""
+                        >
+                        ${jogador.vidas}
+                    `;
+
+
+                    pontosVidas.appendChild(
+                        pontos
+                    );
+
+                    pontosVidas.appendChild(
+                        vidas
+                    );
+
+
+                    acoes.appendChild(
+                        pontosVidas
+                    );
+
+
+                    /*
+                     * BOTÃO EXPULSAR
+                     *
+                     * só aparece:
+                     * - para o host
+                     * - em outro jogador
+                     * - enquanto a partida não começou
+                     */
+
+                    const partidaComecou =
+                        data.jogo_iniciado === true;
+
+
+                    if (
+                        souHost &&
+                        jogador.nome !== meuNome &&
+                        !partidaComecou
+                    ) {
+
+                        const botaoExpulsar =
+                            document.createElement(
+                                "button"
+                            );
+
+                        botaoExpulsar.className =
+                            "btn-expulsar";
+
+                        botaoExpulsar.type =
+                            "button";
+
+                        botaoExpulsar.title =
+                            "expulsar jogador";
+
+                        botaoExpulsar.textContent =
+                            "✕";
+
+
+                        botaoExpulsar.addEventListener(
+                            "click",
+                            () => {
+
+                                if (
+                                    !socket.connected
+                                ) {
+
+                                    mostrarAviso(
+                                        "aguardando conexão..."
+                                    );
+
+                                    return;
+
+                                }
+
+
+                                const confirmar =
+                                    confirm(
+                                        `expulsar ${jogador.nome} da sala?`
+                                    );
+
+
+                                if (!confirmar) {
+                                    return;
+                                }
+
+
+                                botaoExpulsar.disabled =
+                                    true;
+
+
+                                socket.emit(
+                                    "expulsar_jogador",
+                                    {
+                                        nome:
+                                            jogador.nome
+                                    }
+                                );
+
+                            }
+                        );
+
+
+                        acoes.appendChild(
+                            botaoExpulsar
+                        );
+
+                    }
+
+
+                    li.appendChild(
+                        info
+                    );
+
+                    li.appendChild(
+                        acoes
+                    );
+
+
+                    lista.appendChild(
+                        li
+                    );
+
 
                     if (
                         jogador.nome ===
@@ -1722,6 +2921,7 @@
                             jogador.vidas
                         );
 
+
                         atualizarMeusPontos(
                             jogador.pontos || 0
                         );
@@ -1731,10 +2931,12 @@
                 }
             );
 
+
             const configs =
                 document.querySelectorAll(
                     ".config strong"
                 );
+
 
             if (
                 configs[0] &&
@@ -1743,6 +2945,18 @@
 
                 configs[0].textContent =
                     data.tempo + "s";
+
+            }
+
+
+            if (
+                !jogoIniciadoLocal &&
+                !data.jogo_iniciado
+            ) {
+
+                atualizarBotaoComecar(
+                    data.jogadores.length
+                );
 
             }
 
@@ -1755,6 +2969,7 @@
 
                 atualizarJogadores(data);
 
+
                 if (
                     data.jogo_iniciado !== undefined
                 ) {
@@ -1764,6 +2979,7 @@
 
                 }
 
+
                 if (
                     data.em_intervalo !== undefined
                 ) {
@@ -1772,6 +2988,7 @@
                         !!data.em_intervalo;
 
                 }
+
 
                 atualizarChatEstado();
 
@@ -1801,8 +3018,45 @@
 
                     }
 
+
+                    /*
+                     * SEGURANÇA EXTRA NO CLIENTE.
+                     *
+                     * o app.py também deve bloquear,
+                     * então mesmo se alguém tentar
+                     * pelo console do navegador,
+                     * o servidor continua protegendo.
+                     */
+
+                    if (
+                        quantidadeJogadoresAtual <
+                        maxJogadoresSala
+                    ) {
+
+                        mostrarAviso(
+                            `❌ a sala precisa estar cheia (${quantidadeJogadoresAtual}/${maxJogadoresSala})`
+                        );
+
+                        atualizarBotaoComecar(
+                            quantidadeJogadoresAtual
+                        );
+
+                        return;
+
+                    }
+
+
                     botaoComecar.disabled =
                         true;
+
+
+                    if (avisoInicio) {
+
+                        avisoInicio.style.display =
+                            "none";
+
+                    }
+
 
                     socket.emit(
                         "comecar_jogo"
@@ -1815,17 +3069,44 @@
 
 
         // ==========================================
+        // JOGADOR EXPULSO
+        // ==========================================
+
+        socket.on(
+            "voce_foi_expulso",
+            data => {
+
+                alert(
+                    "🚪 você foi expulso da sala."
+                );
+
+
+                window.location.href =
+                    "/";
+
+            }
+        );
+
+
+        // ==========================================
         // NOVA RODADA
         // ==========================================
 
         function iniciarInterfaceJogo(data) {
 
-            jogoIniciadoLocal = true;
-            emIntervalo = false;
-            jaRespondi = false;
+            jogoIniciadoLocal =
+                true;
+
+            emIntervalo =
+                false;
+
+            jaRespondi =
+                false;
+
 
             fecharRanking();
             esconderIntervalo();
+
 
             document
                 .getElementById("rodada")
@@ -1834,15 +3115,18 @@
                     "/" +
                     data.total_rodadas;
 
+
             document
                 .getElementById("letra")
                 .textContent =
                     data.letra;
 
+
             document
                 .getElementById("letra")
                 .style.display =
                     "block";
+
 
             document
                 .getElementById(
@@ -1851,14 +3135,33 @@
                 .textContent =
                     "rodada em andamento";
 
+
+            if (botaoComecar) {
+
+                botaoComecar.style.display =
+                    "none";
+
+            }
+
+
+            if (avisoInicio) {
+
+                avisoInicio.style.display =
+                    "none";
+
+            }
+
+
             campoCarro.disabled =
                 false;
 
             botaoCarro.disabled =
                 false;
 
+
             campoCarro.placeholder =
                 "digite um modelo...";
+
 
             if (
                 data.tempo !== undefined
@@ -1872,6 +3175,7 @@
                         );
 
             }
+
 
             atualizarChatEstado();
 
@@ -1888,13 +3192,16 @@
                     data
                 );
 
+
                 document
                     .getElementById(
                         "carros-enviados"
                     )
                     .innerHTML = "";
 
+
                 campoCarro.focus();
+
 
                 mostrarAviso("");
 
@@ -1906,19 +3213,30 @@
         // INTERVALO
         // ==========================================
 
-    function mostrarIntervalo(data) {
+        function mostrarIntervalo(data) {
 
-        // solo não usa intervalo
-        if (modoSolo) {
-            emIntervalo = false;
-            return;
-        }
+            if (modoSolo) {
 
-        jogoIniciadoLocal = true;
-        emIntervalo = true;
-        jaRespondi = false;
+                emIntervalo =
+                    false;
+
+                return;
+
+            }
+
+
+            jogoIniciadoLocal =
+                true;
+
+            emIntervalo =
+                true;
+
+            jaRespondi =
+                false;
+
 
             fecharRanking();
+
 
             campoCarro.disabled =
                 true;
@@ -1926,19 +3244,24 @@
             botaoCarro.disabled =
                 true;
 
+
             campoCarro.placeholder =
                 "aguarde a próxima rodada...";
+
 
             intervalo.classList.add(
                 "ativo"
             );
 
+
             intervaloSubtitulo.textContent =
                 "próxima letra: rodada " +
                 data.proxima_rodada;
 
+
             intervaloInfo.innerHTML =
                 `<img src="${ICONES.chat}" class="icone" alt=""> chat liberado durante o intervalo`;
+
 
             if (
                 data.tempo !== undefined
@@ -1949,6 +3272,7 @@
                         data.tempo
                     );
 
+
                 document
                     .getElementById("tempo")
                     .textContent =
@@ -1958,6 +3282,7 @@
 
             }
 
+
             if (
                 souHost &&
                 !modoSolo
@@ -1965,6 +3290,7 @@
 
                 btnPularIntervalo.style.display =
                     "inline-block";
+
 
                 btnPularIntervalo.disabled =
                     false;
@@ -1976,12 +3302,14 @@
 
             }
 
+
             document
                 .getElementById(
                     "estado-partida"
                 )
                 .textContent =
                     "intervalo entre rodadas";
+
 
             atualizarChatEstado();
 
@@ -1993,6 +3321,7 @@
             intervalo.classList.remove(
                 "ativo"
             );
+
 
             btnPularIntervalo.style.display =
                 "none";
@@ -2018,13 +3347,16 @@
                     return;
                 }
 
+
                 const restante =
                     data.restante;
+
 
                 tempoIntervalo.textContent =
                     formatarTempo(
                         restante
                     );
+
 
                 document
                     .getElementById("tempo")
@@ -2056,8 +3388,10 @@
                         return;
                     }
 
+
                     btnPularIntervalo.disabled =
                         true;
+
 
                     socket.emit(
                         "pular_intervalo"
@@ -2081,12 +3415,14 @@
                     return;
                 }
 
+
                 document
                     .getElementById("tempo")
                     .textContent =
                         formatarTempo(
                             data.restante
                         );
+
 
                 document
                     .getElementById("tempo")
@@ -2101,15 +3437,21 @@
 
         function formatarTempo(s) {
 
-            s = Math.max(
-                0,
-                Math.floor(s)
-            );
+            s =
+                Math.max(
+                    0,
+                    Math.floor(s)
+                );
+
 
             return (
+
                 String(
                     Math.floor(s / 60)
-                ).padStart(2, "0")
+                ).padStart(
+                    2,
+                    "0"
+                )
 
                 +
 
@@ -2119,7 +3461,11 @@
 
                 String(
                     s % 60
-                ).padStart(2, "0")
+                ).padStart(
+                    2,
+                    "0"
+                )
+
             );
 
         }
@@ -2134,6 +3480,7 @@
             const carro =
                 campoCarro.value.trim();
 
+
             if (
                 !carro ||
                 !socket.connected ||
@@ -2143,6 +3490,7 @@
                 return;
             }
 
+
             socket.emit(
                 "enviar_carro",
                 {
@@ -2150,6 +3498,7 @@
                         carro
                 }
             );
+
 
             campoCarro.value = "";
 
@@ -2191,25 +3540,32 @@
                     data.carro
                 );
 
+
                 if (
                     data.nome ===
                     meuNome
                 ) {
 
-                    jaRespondi = true;
+                    jaRespondi =
+                        true;
+
 
                     campoCarro.disabled =
                         true;
 
+
                     botaoCarro.disabled =
                         true;
+
 
                     campoCarro.placeholder =
                         "resposta enviada ✓";
 
+
                     atualizarMinhasVidas(
                         data.vidas
                     );
+
 
                     atualizarMeusPontos(
                         data.pontos
@@ -2233,6 +3589,7 @@
                     "❌ " +
                     data.mensagem
                 );
+
 
                 if (
                     data.nome === meuNome &&
@@ -2263,27 +3620,43 @@
                     "div"
                 );
 
+
             item.className =
                 "carro-item";
+
 
             item.innerHTML = `
 
                 <span>
-                    <img src="${ICONES.car}" class="icone" alt=""> ${escapeHtml(carro)}
+
+                    <img
+                        src="${ICONES.car}"
+                        class="icone"
+                        alt=""
+                    >
+
+                    ${escapeHtml(carro)}
+
                 </span>
 
+
                 <span class="carro-jogador">
+
                     ${escapeHtml(nome)}
+
                 </span>
 
             `;
+
 
             const lista =
                 document.getElementById(
                     "carros-enviados"
                 );
 
+
             lista.appendChild(item);
+
 
             lista.scrollTop =
                 lista.scrollHeight;
@@ -2295,7 +3668,9 @@
         // VIDAS
         // ==========================================
 
-        function atualizarMinhasVidas(vidas) {
+        function atualizarMinhasVidas(
+            vidas
+        ) {
 
             document
                 .getElementById(
@@ -2304,13 +3679,18 @@
                 .textContent =
                     vidas;
 
-            if (vidas <= 0) {
+
+            if (
+                vidas <= 0
+            ) {
 
                 campoCarro.disabled =
                     true;
 
+
                 botaoCarro.disabled =
                     true;
+
 
                 campoCarro.placeholder =
                     "você foi eliminado";
@@ -2324,7 +3704,9 @@
         // PONTOS
         // ==========================================
 
-        function atualizarMeusPontos(pontos) {
+        function atualizarMeusPontos(
+            pontos
+        ) {
 
             document
                 .getElementById(
@@ -2350,40 +3732,49 @@
                 return;
             }
 
+
             const overlay =
                 document.getElementById(
                     "ranking-overlay"
                 );
+
 
             const titulo =
                 document.getElementById(
                     "ranking-titulo"
                 );
 
+
             const subtitulo =
                 document.getElementById(
                     "ranking-subtitulo"
                 );
+
 
             const lista =
                 document.getElementById(
                     "ranking-lista"
                 );
 
+
             const botao =
                 document.getElementById(
                     "btn-fechar-ranking"
                 );
 
+
             lista.innerHTML = "";
+
 
             if (final) {
 
                 titulo.innerHTML =
                     `<img src="${ICONES.trophy}" class="icone-titulo" alt=""> ranking final`;
 
+
                 subtitulo.textContent =
                     "fim da partida";
+
 
                 botao.textContent =
                     "fechar";
@@ -2393,9 +3784,11 @@
                 titulo.innerHTML =
                     `<img src="${ICONES.trophy}" class="icone-titulo" alt=""> ranking da rodada`;
 
+
                 subtitulo.textContent =
                     "resultado da rodada " +
                     rodada;
+
 
                 botao.textContent =
                     "aguardar próxima rodada";
@@ -2411,8 +3804,10 @@
                             "div"
                         );
 
+
                     item.className =
                         "ranking-item";
+
 
                     if (
                         jogador.posicao === 1
@@ -2424,30 +3819,36 @@
 
                     }
 
+
                     let medalha = "";
+
 
                     if (
                         jogador.posicao === 1
                     ) {
 
-                        medalha = "🥇";
+                        medalha =
+                            "🥇";
 
                     } else if (
                         jogador.posicao === 2
                     ) {
 
-                        medalha = "🥈";
+                        medalha =
+                            "🥈";
 
                     } else if (
                         jogador.posicao === 3
                     ) {
 
-                        medalha = "🥉";
+                        medalha =
+                            "🥉";
 
                     } else {
 
                         medalha =
-                            jogador.posicao + "º";
+                            jogador.posicao +
+                            "º";
 
                     }
 
@@ -2457,6 +3858,7 @@
                         <div class="ranking-posicao">
                             ${medalha}
                         </div>
+
 
                         <div>
 
@@ -2468,34 +3870,59 @@
 
                                 ${
                                     jogador.eliminado
-                                    ? ` <img src="${ICONES.skull}" class="icone-pequeno" alt="eliminado">`
-                                    : ""
+
+                                    ?
+
+                                    ` <img src="${ICONES.skull}" class="icone-pequeno" alt="eliminado">`
+
+                                    :
+
+                                    ""
                                 }
 
                             </div>
 
+
                             <div class="ranking-detalhes">
 
-                                <img src="${ICONES.heart}" class="icone" alt=""> ${jogador.vidas}
+                                <img
+                                    src="${ICONES.heart}"
+                                    class="icone"
+                                    alt=""
+                                >
+
+                                ${jogador.vidas}
 
                                 &nbsp; • &nbsp;
 
-                                ${jogador.pontos} ponto(s)
+                                ${jogador.pontos}
+                                ponto(s)
 
                             </div>
 
                         </div>
 
+
                         <div class="ranking-pontos">
-                            <img src="${ICONES.star}" class="icone" alt=""> ${jogador.pontos}
+
+                            <img
+                                src="${ICONES.star}"
+                                class="icone"
+                                alt=""
+                            >
+
+                            ${jogador.pontos}
+
                         </div>
 
                     `;
+
 
                     lista.appendChild(item);
 
                 }
             );
+
 
             overlay.classList.add(
                 "ativo"
@@ -2528,11 +3955,14 @@
                 campoCarro.disabled =
                     true;
 
+
                 botaoCarro.disabled =
                     true;
 
+
                 campoCarro.placeholder =
                     "próxima rodada...";
+
 
                 abrirRanking(
                     data.ranking,
@@ -2555,16 +3985,21 @@
                 jogoIniciadoLocal =
                     false;
 
+
                 emIntervalo =
                     false;
 
+
                 esconderIntervalo();
+
 
                 campoCarro.disabled =
                     true;
 
+
                 botaoCarro.disabled =
                     true;
+
 
                 document
                     .getElementById(
@@ -2573,14 +4008,17 @@
                     .textContent =
                         "🏁 partida encerrada";
 
+
                 if (botaoComecar) {
 
-                    botaoComecar.disabled =
-                        false;
+                    botaoComecar.style.display =
+                        "none";
 
                 }
 
+
                 atualizarChatEstado();
+
 
                 abrirRanking(
                     data.ranking,
@@ -2605,8 +4043,10 @@
                 return;
             }
 
+
             const mensagem =
                 campoChat.value.trim();
+
 
             if (
                 !mensagem ||
@@ -2614,6 +4054,7 @@
             ) {
                 return;
             }
+
 
             socket.emit(
                 "mensagem_chat",
@@ -2623,7 +4064,9 @@
                 }
             );
 
+
             campoChat.value = "";
+
             campoChat.focus();
 
         }
@@ -2671,23 +4114,29 @@
                     return;
                 }
 
+
                 const div =
                     document.createElement(
                         "div"
                     );
 
+
                 div.className =
                     "chat-msg";
+
 
                 div.innerHTML = `
 
                     <span class="chat-nome">
+
                         ${escapeHtml(data.nome)}:
+
                     </span>
 
                     ${escapeHtml(data.mensagem)}
 
                 `;
+
 
                 document
                     .getElementById(
@@ -2695,13 +4144,29 @@
                     )
                     .appendChild(div);
 
+
                 const chat =
                     document.getElementById(
                         "chat"
                     );
 
+
                 chat.scrollTop =
                     chat.scrollHeight;
+
+
+                // 🔔 NOTIFICA APENAS MENSAGENS DE OUTRAS PESSOAS
+
+                if (
+                    data.nome !== meuNome
+                ) {
+
+                    mostrarNotificacaoChat(
+                        data.nome,
+                        data.mensagem
+                    );
+
+                }
 
             }
         );
@@ -2719,17 +4184,21 @@
                     return;
                 }
 
+
                 const div =
                     document.createElement(
                         "div"
                     );
 
+
                 div.className =
                     "chat-msg chat-bloqueado";
+
 
                 div.textContent =
                     "🚫 " +
                     data.mensagem;
+
 
                 document
                     .getElementById(
@@ -2745,20 +4214,25 @@
         // AVISO
         // ==========================================
 
-        function mostrarAviso(texto) {
+        function mostrarAviso(
+            texto
+        ) {
 
             const aviso =
                 document.getElementById(
                     "aviso"
                 );
 
+
             aviso.textContent =
                 texto;
+
 
             aviso.style.display =
                 texto
                 ? "block"
                 : "none";
+
 
             if (texto) {
 
@@ -2781,15 +4255,19 @@
         // SEGURANÇA HTML
         // ==========================================
 
-        function escapeHtml(text) {
+        function escapeHtml(
+            text
+        ) {
 
             const div =
                 document.createElement(
                     "div"
                 );
 
+
             div.textContent =
                 String(text);
+
 
             return div.innerHTML;
 
@@ -2797,8 +4275,12 @@
 
 
         // ==========================================
-        // ESTADO INICIAL DO CHAT
+        // ESTADO INICIAL
         // ==========================================
+
+        atualizarBotaoComecar(
+            quantidadeJogadoresAtual
+        );
 
         atualizarChatEstado();
 

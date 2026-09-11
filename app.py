@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_socketio import SocketIO, join_room, emit
+from flask_socketio import SocketIO, join_room, emit, disconnect
 import random
 import string
 import json
@@ -825,6 +825,24 @@ def comecar_jogo():
         return
 
     # ======================================
+    # SALA PRECISA ESTAR CHEIA
+    # ======================================
+
+    quantidade_jogadores = len(sala["jogadores"])
+    max_jogadores = sala["max_jogadores"]
+
+    if quantidade_jogadores < max_jogadores:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    f"aguarde todos os jogadores entrarem "
+                    f"({quantidade_jogadores}/{max_jogadores})"
+            }
+        )
+        return
+
+    # ======================================
     # RESET DA PARTIDA
     # ======================================
 
@@ -861,6 +879,97 @@ def comecar_jogo():
 
     iniciar_rodada(codigo)
 
+@socketio.on("expulsar_jogador")
+def expulsar_jogador(data):
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+        emit("erro_socket", {
+            "mensagem": "conecte-se à sala primeiro"
+        })
+        return
+
+    # somente o host pode expulsar
+    if nome != sala["host"]:
+        emit("erro_socket", {
+            "mensagem": "somente o host pode expulsar jogadores"
+        })
+        return
+
+    jogador_expulso = str(data.get("nome", "")).strip()
+
+    if not jogador_expulso:
+        emit("erro_socket", {
+            "mensagem": "jogador inválido"
+        })
+        return
+
+    # o host não pode se expulsar
+    if jogador_expulso == sala["host"]:
+        emit("erro_socket", {
+            "mensagem": "o host não pode ser expulso"
+        })
+        return
+
+    # verifica se o jogador realmente está na sala
+    if jogador_expulso not in sala["jogadores"]:
+        emit("erro_socket", {
+            "mensagem": "esse jogador não está na sala"
+        })
+        return
+
+    # remove o jogador da sala
+    sala["jogadores"].remove(jogador_expulso)
+
+    # limpa os dados dele
+    sala["vidas"].pop(jogador_expulso, None)
+
+    # procura a conexão/socket do jogador expulso
+    sid_expulso = None
+
+    for sid, conexao in list(conexoes.items()):
+        if (
+            conexao.get("codigo") == codigo
+            and conexao.get("nome") == jogador_expulso
+        ):
+            sid_expulso = sid
+            break
+
+    # avisa o jogador antes de desconectar
+    if sid_expulso:
+        socketio.emit(
+            "voce_foi_expulso",
+            {
+                "mensagem": "você foi expulso da sala pelo host."
+            },
+            to=sid_expulso
+        )
+
+        # remove a conexão
+        conexoes.pop(sid_expulso, None)
+
+        # tira o jogador da room do Socket.IO
+        try:
+            from flask_socketio import leave_room
+            socketio.server.leave_room(
+                sid_expulso,
+                codigo,
+                namespace="/"
+            )
+        except Exception:
+            pass
+
+    # avisa os outros jogadores
+    socketio.emit(
+        "jogador_expulso",
+        {
+            "nome": jogador_expulso
+        },
+        to=codigo
+    )
+
+    # atualiza a lista para todo mundo
+    atualizar_lobby(codigo)
 
 # ==========================================
 # INICIAR RODADA
@@ -1776,6 +1885,173 @@ def mensagem_chat(data):
 
 
 # ==========================================
+# EXPULSAR JOGADOR
+# ==========================================
+
+@socketio.on("expulsar_jogador")
+def expulsar_jogador(data):
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conecte-se à sala primeiro"
+            }
+        )
+        return
+
+    # ======================================
+    # SOMENTE O HOST PODE EXPULSAR
+    # ======================================
+
+    if nome != sala["host"]:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "somente o host pode expulsar jogadores"
+            }
+        )
+        return
+
+    # ======================================
+    # SÓ PODE EXPULSAR NO LOBBY
+    # ======================================
+
+    if sala["jogo_iniciado"]:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "não é possível expulsar jogadores durante a partida"
+            }
+        )
+        return
+
+    jogador_expulso = str(
+        data.get(
+            "nome",
+            ""
+        )
+    ).strip()
+
+    # ======================================
+    # VALIDAÇÕES
+    # ======================================
+
+    if not jogador_expulso:
+        return
+
+    if jogador_expulso == nome:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "você não pode expulsar a si mesmo"
+            }
+        )
+        return
+
+    if jogador_expulso not in sala["jogadores"]:
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "jogador não encontrado na sala"
+            }
+        )
+        return
+
+    # ======================================
+    # DESCOBRIR SID DO JOGADOR
+    # ======================================
+
+    sid_expulso = None
+
+    for sid, conexao in list(conexoes.items()):
+        if (
+            conexao["codigo"] == codigo
+            and conexao["nome"] == jogador_expulso
+        ):
+            sid_expulso = sid
+            break
+
+    # ======================================
+    # REMOVER DO ESTADO DA SALA
+    # ======================================
+
+    sala["jogadores"].remove(jogador_expulso)
+
+    sala["vidas"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["pontos"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["respostas_validas"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["responderam"].discard(
+        jogador_expulso
+    )
+
+    # ======================================
+    # AVISAR TODOS OS JOGADORES
+    # ======================================
+
+    socketio.emit(
+        "jogador_expulso",
+        {
+            "nome": jogador_expulso
+        },
+        to=codigo
+    )
+
+    # ======================================
+    # AVISAR O EXPULSO
+    # ======================================
+
+    if sid_expulso:
+
+        socketio.emit(
+            "voce_foi_expulso",
+            {
+                "mensagem":
+                    "você foi expulso da sala pelo host."
+            },
+            to=sid_expulso
+        )
+
+        # Remove a conexão
+        conexoes.pop(
+            sid_expulso,
+            None
+        )
+
+        # Desconecta o socket
+        try:
+            disconnect(
+                sid_expulso
+            )
+        except Exception:
+            pass
+
+    # ======================================
+    # ATUALIZAR LOBBY
+    # ======================================
+
+    atualizar_lobby(codigo)
+
+# ==========================================
 # DISCONNECT
 # ==========================================
 
@@ -1799,16 +2075,9 @@ def desconectado():
 # ==========================================
 
 if __name__ == "__main__":
-
-    print(
-        "🚗 Stop de Carro: "
-        "http://127.0.0.1:5000"
-    )
-
     socketio.run(
         app,
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=5000,
-        debug=True,
-        allow_unsafe_werkzeug=True
+        debug=False
     )
