@@ -607,6 +607,38 @@
             }
         }
 
+
+        /* ÍCONES SVG */
+        .icone {
+            width: 18px;
+            height: 18px;
+            vertical-align: -4px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .icone-titulo {
+            width: 24px;
+            height: 24px;
+            vertical-align: -5px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .icone-pequeno {
+            width: 15px;
+            height: 15px;
+            vertical-align: -3px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .logo-stopkart {
+            width: 90px;
+            height: auto;
+            object-fit: contain;
+            vertical-align: middle;
+        }
     </style>
 
 </head>
@@ -671,7 +703,7 @@
     <header>
 
         <div class="logo">
-            🏎️ Stopkart
+            <img src="{{ url_for('static', filename='icons/RodaStopkart.png') }}" class="logo-stopkart" alt="">Stopkart
         </div>
 
         <div class="codigo">
@@ -690,14 +722,14 @@
             class="ativo"
             onclick="abrirAba('jogo')"
         >
-            🎮 jogo
+            <img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone" alt=""> jogo
         </button>
 
         <button
             id="btn-chat"
             onclick="abrirAba('chat')"
         >
-            💬 chat
+            <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat
         </button>
 
     </div>
@@ -718,13 +750,13 @@
 
             <div class="card">
 
-                <h2>👥 jogadores</h2>
+                <h2><img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone-titulo" alt=""> jogadores</h2>
 
                 <div
                     id="status-conexao"
                     class="conexao"
                 >
-                    🔴 conectando...
+                    <img src="{{ url_for('static', filename='icons/RedCircle_Icon.svg') }}" class="icone" alt=""> conectando...
                 </div>
 
                 <ul
@@ -739,7 +771,11 @@
                         <div class="jogador-info">
 
                             <span>
-                                {{ "💀" if jogador.eliminado else "🟢" }}
+                                {% if jogador.eliminado %}
+                                    <img src="{{ url_for('static', filename='icons/Skull_Icon.svg') }}" class="icone" alt="eliminado">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='icons/GreenCircle_Icon.svg') }}" class="icone" alt="online">
+                                {% endif %}
                             </span>
 
                             <span>
@@ -759,11 +795,11 @@
                         <div>
 
                             <span class="pontos-lobby">
-                                ⭐ {{ jogador.pontos }}
+                                <img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> {{ jogador.pontos }}
                             </span>
 
                             <span class="vidas">
-                                ❤️ {{ jogador.vidas }}
+                                <img src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}" class="icone" alt=""> {{ jogador.vidas }}
                             </span>
 
                         </div>
@@ -778,7 +814,7 @@
 
                     <div>
 
-                        ⏱️ tempo
+                        <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> tempo
 
                         <strong>
                             {{ tempo }}s
@@ -788,7 +824,7 @@
 
                     <div>
 
-                        👥 máximo
+                        <img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone" alt=""> máximo
 
                         <strong>
                             {{ max_jogadores }}
@@ -805,7 +841,7 @@
 
             <div class="card">
 
-                <h2>🎮 partida</h2>
+                <h2><img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone-titulo" alt=""> partida</h2>
 
                 <p id="estado-partida">
 
@@ -835,7 +871,7 @@
                     id="botao-comecar"
                     class="acao"
                 >
-                    👑 começar jogo
+                    <img src="{{ url_for('static', filename='icons/Crown_Icon.svg') }}" class="icone" alt=""> começar jogo
                 </button>
 
                 {% endif %}
@@ -874,7 +910,7 @@
                         id="intervalo-info"
                         class="intervalo-info"
                     >
-                        💬 chat liberado durante o intervalo
+                        <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat liberado durante o intervalo
                     </div>
 
                     <button
@@ -935,7 +971,7 @@
 
                     <div>
 
-                        ⭐ pontos
+                        <img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> pontos
 
                         <strong id="meus-pontos">
                             0
@@ -945,7 +981,7 @@
 
                     <div>
 
-                        ❤️ vidas
+                        <img src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}" class="icone" alt=""> vidas
 
                         <strong id="minhas-vidas">
                             3
@@ -955,7 +991,7 @@
 
                     <div>
 
-                        ⏱️ tempo
+                        <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> tempo
 
                         <strong id="tempo">
                             {{ "%02d:%02d"|format(tempo//60, tempo%60) }}
@@ -973,7 +1009,7 @@
             <div class="card">
 
                 <h2>
-                    🚗 respostas
+                    <img src="{{ url_for('static', filename='icons/Car_Icon.svg') }}" class="icone-titulo" alt=""> respostas
                 </h2>
 
                 <div class="entrada">
@@ -1016,7 +1052,7 @@
         <div class="card">
 
             <h2>
-                💬 chat da sala
+                <img src="{{ url_for('static', filename='icons/Chat_Icon.svg') }}" class="icone" alt=""> chat da sala
             </h2>
 
             <div id="chat"></div>
@@ -1058,7 +1094,7 @@
                 id="ranking-titulo"
                 class="ranking-titulo"
             >
-                🏆 ranking
+                <img src="{{ url_for('static', filename='icons/Tropy_Icon.svg') }}" class="icone-titulo" alt=""> ranking
             </div>
 
             <div
@@ -1117,6 +1153,29 @@
 
         const souHost =
             meuNome === nomeHost;
+
+
+        // ÍCONES SVG
+        const ICONES = {
+            user: "/static/icons/User_Icon_Icon.svg",
+            rotation: "/static/icons/Rotation_Icon.svg",
+            abc: "/static/icons/ABC_Alphabet_Icon.svg",
+            door: "/static/icons/Door_Icon.svg",
+            star: "/static/icons/Star_Icon.svg",
+            settings: "/static/icons/Settings_Icon.svg",
+            trophy: "/static/icons/Tropy_Icon.svg",
+            timer: "/static/icons/Timer_Icon.svg",
+            skull: "/static/icons/Skull_Icon.svg",
+            red: "/static/icons/RedCircle_Icon.svg",
+            green: "/static/icons/GreenCircle_Icon.svg",
+            car: "/static/icons/Car_Icon.svg",
+            heart: "/static/icons/Heart_Icon.svg",
+            crown: "/static/icons/Crown_Icon.svg",
+            users: "/static/icons/Users_Icon.svg",
+            chat: "/static/icons/Chat_Icon.svg",
+            game: "/static/icons/GameController_Icon.svg",
+            logo: "/static/icons/Logo_Icon.svg"
+        };
 
 
         // ==========================================
@@ -1477,8 +1536,8 @@
             "connect",
             () => {
 
-                statusConexao.textContent =
-                    "🟢 conectado";
+                statusConexao.innerHTML =
+                    `<img src="${ICONES.green}" class="icone" alt=""> conectado`;
 
                 statusConexao.style.color =
                     "#6fda8b";
@@ -1502,8 +1561,8 @@
             "disconnect",
             () => {
 
-                statusConexao.textContent =
-                    "🔴 desconectado";
+                statusConexao.innerHTML =
+                    `<img src="${ICONES.red}" class="icone" alt=""> desconectado`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -1516,8 +1575,8 @@
             "connect_error",
             () => {
 
-                statusConexao.textContent =
-                    "🔴 erro na conexão";
+                statusConexao.innerHTML =
+                    `<img src="${ICONES.red}" class="icone" alt=""> erro na conexão`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -1617,8 +1676,8 @@
                             <span>
                                 ${
                                     jogador.eliminado
-                                    ? "💀"
-                                    : "🟢"
+                                    ? `<img src="${ICONES.skull}" class="icone" alt="eliminado">`
+                                    : `<img src="${ICONES.green}" class="icone" alt="online">`
                                 }
                             </span>
 
@@ -1641,11 +1700,11 @@
                         <div>
 
                             <span class="pontos-lobby">
-                                ⭐ ${jogador.pontos || 0}
+                                <img src="${ICONES.star}" class="icone" alt=""> ${jogador.pontos || 0}
                             </span>
 
                             <span class="vidas">
-                                ❤️ ${jogador.vidas}
+                                <img src="${ICONES.heart}" class="icone" alt=""> ${jogador.vidas}
                             </span>
 
                         </div>
@@ -1735,7 +1794,7 @@
                     ) {
 
                         mostrarAviso(
-                            "🔴 aguardando conexão..."
+                            "aguardando conexão..."
                         );
 
                         return;
@@ -1878,8 +1937,8 @@
                 "próxima letra: rodada " +
                 data.proxima_rodada;
 
-            intervaloInfo.textContent =
-                "💬 chat liberado durante o intervalo";
+            intervaloInfo.innerHTML =
+                `<img src="${ICONES.chat}" class="icone" alt=""> chat liberado durante o intervalo`;
 
             if (
                 data.tempo !== undefined
@@ -1922,7 +1981,7 @@
                     "estado-partida"
                 )
                 .textContent =
-                    "⏸️ intervalo entre rodadas";
+                    "intervalo entre rodadas";
 
             atualizarChatEstado();
 
@@ -2210,7 +2269,7 @@
             item.innerHTML = `
 
                 <span>
-                    🚗 ${escapeHtml(carro)}
+                    <img src="${ICONES.car}" class="icone" alt=""> ${escapeHtml(carro)}
                 </span>
 
                 <span class="carro-jogador">
@@ -2254,7 +2313,7 @@
                     true;
 
                 campoCarro.placeholder =
-                    "você foi eliminado 💀";
+                    "você foi eliminado";
 
             }
 
@@ -2320,8 +2379,8 @@
 
             if (final) {
 
-                titulo.textContent =
-                    "🏆 ranking final";
+                titulo.innerHTML =
+                    `<img src="${ICONES.trophy}" class="icone-titulo" alt=""> ranking final`;
 
                 subtitulo.textContent =
                     "fim da partida";
@@ -2331,8 +2390,8 @@
 
             } else {
 
-                titulo.textContent =
-                    "📊 ranking da rodada";
+                titulo.innerHTML =
+                    `<img src="${ICONES.trophy}" class="icone-titulo" alt=""> ranking da rodada`;
 
                 subtitulo.textContent =
                     "resultado da rodada " +
@@ -2409,7 +2468,7 @@
 
                                 ${
                                     jogador.eliminado
-                                    ? " 💀"
+                                    ? ` <img src="${ICONES.skull}" class="icone-pequeno" alt="eliminado">`
                                     : ""
                                 }
 
@@ -2417,7 +2476,7 @@
 
                             <div class="ranking-detalhes">
 
-                                ❤️ ${jogador.vidas}
+                                <img src="${ICONES.heart}" class="icone" alt=""> ${jogador.vidas}
 
                                 &nbsp; • &nbsp;
 
@@ -2428,7 +2487,7 @@
                         </div>
 
                         <div class="ranking-pontos">
-                            ⭐ ${jogador.pontos}
+                            <img src="${ICONES.star}" class="icone" alt=""> ${jogador.pontos}
                         </div>
 
                     `;

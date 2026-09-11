@@ -651,6 +651,39 @@
             }
 
         }
+
+        /* ÍCONES SVG */
+        .icone {
+            width: 18px;
+            height: 18px;
+            vertical-align: -4px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .icone-titulo {
+            width: 24px;
+            height: 24px;
+            vertical-align: -5px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .icone-pequeno {
+            width: 15px;
+            height: 15px;
+            vertical-align: -3px;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .logo-stopkart {
+            width: 180px;
+            height: auto;
+            object-fit: contain;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 
@@ -662,7 +695,9 @@
 
         <div class="titulo">
 
-            <h1>🏎️ Stopkart</h1>
+            <h1><img src="{{ url_for('static', filename='icons/RodaStopkart.png') }}" class="logo-stopkart" alt=""></h1>
+            <h1>Stopkart</h1>
+
 
             <p>
                 pense rápido. escolha um carro. não repita.
@@ -678,7 +713,7 @@
 
             <div class="card">
 
-                <h2>🎮 Criar sala</h2>
+                <h2><img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone-titulo" alt=""> Criar sala</h2>
 
                 <p>
                     configure a partida do seu jeito.
@@ -705,7 +740,7 @@
                     <div class="config">
 
                         <h3>
-                            ⚙️ Configurações da sala
+                            <img src="{{ url_for('static', filename='icons/Settings_Icon.svg') }}" class="icone" alt=""> Configurações da sala
                         </h3>
 
                         <!-- =========================
@@ -713,7 +748,7 @@
                         ========================= -->
 
                         <label>
-                            🎮 modo de jogo
+                            <img src="{{ url_for('static', filename='icons/GameController_Icon.svg') }}" class="icone" alt=""> modo de jogo
                         </label>
 
                         <div class="modos">
@@ -727,7 +762,7 @@
                                     checked
                                 >
 
-                                👥 multiplayer
+                                <img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone" alt=""> multiplayer
 
                             </label>
 
@@ -739,7 +774,7 @@
                                     value="solo"
                                 >
 
-                                👤 solo
+                                <img src="{{ url_for('static', filename='icons/User_Icon.svg') }}" class="icone" alt=""> solo
 
                             </label>
 
@@ -762,7 +797,7 @@
                                 id="btn-intervalo"
                                 type="button"
                             >
-                                ⏱️ intervalo: ativado
+                                <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> intervalo: ativado
                             </button>
 
                             <div id="info-intervalo">
@@ -776,7 +811,7 @@
                         ========================= -->
 
                         <label for="total-rodadas">
-                            🔄 número de rodadas
+                            <img src="{{ url_for('static', filename='icons/Rotation_Icon.svg') }}" class="icone" alt=""> número de rodadas
                         </label>
 
                         <input
@@ -798,7 +833,7 @@
                         ========================= -->
 
                         <label for="tempo">
-                            ⏱️ tempo por rodada
+                            <img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> tempo por rodada
                             (segundos)
                         </label>
 
@@ -817,7 +852,7 @@
                         ========================= -->
 
                         <label for="max-jogadores">
-                            👥 máximo de jogadores
+                            <img src="{{ url_for('static', filename='icons/Users_Icon.svg') }}" class="icone" alt=""> máximo de jogadores
                         </label>
 
                         <input
@@ -842,7 +877,7 @@
                         ========================= -->
 
                         <label>
-                            🔤 letras que não serão sorteadas
+                            <img src="{{ url_for('static', filename='icons/ABC_Alphabet_Icon.svg') }}" class="icone" alt=""> letras que não serão sorteadas
                         </label>
 
                         <div class="letras">
@@ -881,7 +916,7 @@
 
             <div class="card">
 
-                <h2>🚪 Entrar na sala</h2>
+                <h2><img src="{{ url_for('static', filename='icons/Door_Icon.svg') }}" class="icone-titulo" alt=""> Entrar na sala</h2>
 
                 <p>
                     já tem um código? entre na partida.
@@ -1077,8 +1112,8 @@
                 intervaloHabilitado.value === "1"
             ) {
 
-                btnIntervalo.textContent =
-                    "⏱️ intervalo: ativado";
+                btnIntervalo.innerHTML =
+                    `<img src="/static/icons/Timer_Icon.svg" class="icone" alt=""> intervalo: ativado`;
 
                 btnIntervalo.classList.remove(
                     "desativado"
@@ -1094,7 +1129,7 @@
             else {
 
                 btnIntervalo.textContent =
-                    "⏭️ intervalo: desativado";
+                    "intervalo: desativado";
 
                 btnIntervalo.classList.add(
                     "desativado"
