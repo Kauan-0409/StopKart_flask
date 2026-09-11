@@ -8,6 +8,7 @@ import re
 import time
 
 app = Flask(__name__)
+
 app.config["SECRET_KEY"] = "stop-carro-secret"
 
 socketio = SocketIO(
@@ -25,6 +26,7 @@ INTERVALO_RODADAS = 120
 MAX_JOGADORES_PADRAO = 2
 RODADAS_PADRAO = 6
 VIDAS_INICIAIS = 3
+
 MIN_RODADAS = 1
 MAX_RODADAS = 50
 
@@ -74,7 +76,9 @@ conexoes = {}
 # ==========================================
 
 def gerar_codigo():
+
     while True:
+
         codigo = "".join(
             random.choices(
                 string.ascii_uppercase + string.digits,
@@ -91,9 +95,11 @@ def gerar_codigo():
 # ==========================================
 
 def estado_jogadores(sala):
+
     jogadores = []
 
     for nome in sala["jogadores"]:
+
         vidas = sala["vidas"].get(
             nome,
             VIDAS_INICIAIS
@@ -115,9 +121,11 @@ def estado_jogadores(sala):
 # ==========================================
 
 def gerar_ranking(sala):
+
     jogadores = []
 
     for nome in sala["jogadores"]:
+
         vidas = sala["vidas"].get(
             nome,
             0
@@ -168,7 +176,9 @@ def gerar_ranking(sala):
         jogadores,
         start=1
     ):
+
         jogador["posicao"] = posicao
+
         ranking.append(jogador)
 
     return ranking
@@ -179,6 +189,7 @@ def gerar_ranking(sala):
 # ==========================================
 
 def atualizar_lobby(codigo):
+
     if codigo not in salas:
         return
 
@@ -207,6 +218,7 @@ def atualizar_lobby(codigo):
 # ==========================================
 
 def dados_sala(codigo):
+
     sala = salas[codigo]
 
     return {
@@ -232,6 +244,7 @@ def dados_sala(codigo):
 
 @app.route("/")
 def inicio():
+
     return render_template("index.html")
 
 
@@ -251,6 +264,7 @@ def criar_sala():
         r"[A-Za-z0-9_]+",
         nome
     ):
+
         return (
             "nome inválido! "
             "use apenas letras, números e _ 😭"
@@ -266,17 +280,35 @@ def criar_sala():
     )
 
     # ======================================
+    # INTERVALO
+    # ======================================
+
+    intervalo_habilitado = (
+        request.form.get(
+            "intervalo_habilitado",
+            "1"
+        ) == "1"
+    )
+
+    # Solo nunca usa intervalo
+    if modo == "solo":
+        intervalo_habilitado = False
+
+    # ======================================
     # TEMPO
     # ======================================
 
     try:
+
         tempo = int(
             request.form.get(
                 "tempo",
                 TEMPO_PADRAO
             )
         )
+
     except:
+
         tempo = TEMPO_PADRAO
 
     # ======================================
@@ -284,13 +316,16 @@ def criar_sala():
     # ======================================
 
     try:
+
         total_rodadas = int(
             request.form.get(
                 "total_rodadas",
                 RODADAS_PADRAO
             )
         )
+
     except:
+
         total_rodadas = RODADAS_PADRAO
 
     # ======================================
@@ -298,13 +333,16 @@ def criar_sala():
     # ======================================
 
     try:
+
         max_jogadores = int(
             request.form.get(
                 "max_jogadores",
                 MAX_JOGADORES_PADRAO
             )
         )
+
     except:
+
         max_jogadores = MAX_JOGADORES_PADRAO
 
     # ======================================
@@ -326,8 +364,11 @@ def criar_sala():
     # ======================================
 
     if modo == "solo":
+
         max_jogadores = 1
+
     else:
+
         max_jogadores = max(
             2,
             min(20, max_jogadores)
@@ -356,6 +397,7 @@ def criar_sala():
     # ======================================
 
     salas[codigo] = {
+
         "host": nome,
 
         "jogadores": [
@@ -427,7 +469,7 @@ def criar_sala():
             None,
 
         "intervalo_habilitado":
-            modo != "solo"
+            intervalo_habilitado
     }
 
     return redirect(
@@ -460,27 +502,32 @@ def entrar_sala():
         r"[A-Za-z0-9_]+",
         nome
     ):
+
         return (
             "nome inválido! "
             "use apenas letras, números e _ 😭"
         )
 
     if codigo not in salas:
+
         return "sala não encontrada 😭"
 
     sala = salas[codigo]
 
     if sala["jogo_iniciado"]:
+
         return (
             "essa partida já começou 😭"
         )
 
     if len(sala["jogadores"]) >= sala["max_jogadores"]:
+
         return (
             "essa sala está cheia 😭"
         )
 
     if nome in sala["jogadores"]:
+
         return (
             "esse nome já está na sala 😭"
         )
@@ -488,7 +535,9 @@ def entrar_sala():
     sala["jogadores"].append(nome)
 
     sala["vidas"][nome] = VIDAS_INICIAIS
+
     sala["pontos"][nome] = 0
+
     sala["respostas_validas"][nome] = 0
 
     return redirect(
@@ -508,6 +557,7 @@ def entrar_sala():
 def sala(codigo):
 
     if codigo not in salas:
+
         return "sala não encontrada 😭"
 
     sala_data = salas[codigo]
@@ -518,6 +568,7 @@ def sala(codigo):
     ).strip()
 
     if nome not in sala_data["jogadores"]:
+
         return (
             "jogador não pertence "
             "a esta sala 😭"
@@ -527,7 +578,9 @@ def sala(codigo):
         "salas.html",
 
         codigo=codigo,
+
         nome=nome,
+
         host=sala_data["host"],
 
         jogadores=estado_jogadores(
@@ -550,7 +603,10 @@ def sala(codigo):
             sala_data["modo"],
 
         em_intervalo=
-            sala_data["em_intervalo"]
+            sala_data["em_intervalo"],
+
+        intervalo_habilitado=
+            sala_data["intervalo_habilitado"]
     )
 
 
@@ -591,6 +647,7 @@ def entrar_sala_socket(data):
     ).strip()
 
     if codigo not in salas:
+
         emit(
             "erro_socket",
             {
@@ -598,11 +655,13 @@ def entrar_sala_socket(data):
                     "sala não encontrada"
             }
         )
+
         return
 
     sala = salas[codigo]
 
     if nome not in sala["jogadores"]:
+
         emit(
             "erro_socket",
             {
@@ -610,6 +669,7 @@ def entrar_sala_socket(data):
                     "jogador não pertence à sala"
             }
         )
+
         return
 
     conexoes[request.sid] = {
@@ -715,6 +775,7 @@ def jogador_atual():
         return None, None, None
 
     codigo = conexao["codigo"]
+
     nome = conexao["nome"]
 
     if codigo not in salas:
@@ -737,6 +798,7 @@ def comecar_jogo():
     codigo, nome, sala = jogador_atual()
 
     if not sala:
+
         emit(
             "erro_socket",
             {
@@ -744,9 +806,11 @@ def comecar_jogo():
                     "conecte-se à sala primeiro"
             }
         )
+
         return
 
     if nome != sala["host"]:
+
         emit(
             "erro_socket",
             {
@@ -754,6 +818,7 @@ def comecar_jogo():
                     "somente o host pode iniciar"
             }
         )
+
         return
 
     if sala["jogo_iniciado"]:
@@ -764,18 +829,35 @@ def comecar_jogo():
     # ======================================
 
     sala["jogo_iniciado"] = True
+
     sala["rodada"] = 1
+
     sala["carros_usados"] = []
+
     sala["responderam"] = set()
+
     sala["encerrando_rodada"] = False
+
     sala["em_intervalo"] = False
+
     sala["fim_intervalo"] = None
+
+    sala["fim_rodada"] = None
+
+    sala["timer_ativo"] = False
 
     for jogador in sala["jogadores"]:
 
         sala["vidas"][jogador] = VIDAS_INICIAIS
+
         sala["pontos"][jogador] = 0
+
         sala["respostas_validas"][jogador] = 0
+
+    # ======================================
+    # PRIMEIRA RODADA
+    # SEM INTERVALO
+    # ======================================
 
     iniciar_rodada(codigo)
 
@@ -799,7 +881,9 @@ def iniciar_rodada(codigo):
     # ======================================
 
     if sala["rodada"] > sala["total_rodadas"]:
+
         finalizar_jogo(codigo)
+
         return
 
     # ======================================
@@ -813,7 +897,9 @@ def iniciar_rodada(codigo):
     ]
 
     if not disponiveis:
+
         finalizar_jogo(codigo)
+
         return
 
     # ======================================
@@ -821,11 +907,15 @@ def iniciar_rodada(codigo):
     # ======================================
 
     sala["em_intervalo"] = False
+
     sala["fim_intervalo"] = None
 
-    sala["letra"] = random.choice(disponiveis)
+    sala["letra"] = random.choice(
+        disponiveis
+    )
 
     sala["responderam"] = set()
+
     sala["encerrando_rodada"] = False
 
     # ======================================
@@ -840,69 +930,6 @@ def iniciar_rodada(codigo):
     # ======================================
     # AVISAR CLIENTES
     # ======================================
-
-    socketio.emit(
-        "nova_rodada",
-        {
-            "rodada": sala["rodada"],
-            "total_rodadas": sala["total_rodadas"],
-            "letra": sala["letra"],
-            "tempo": sala["tempo_rodada"],
-            "fim": sala["fim_rodada"]
-        },
-        to=codigo
-    )
-
-    atualizar_lobby(codigo)
-
-    # ======================================
-    # INICIAR CRONÔMETRO
-    # ======================================
-
-    if not sala["timer_ativo"]:
-
-        sala["timer_ativo"] = True
-
-        socketio.start_background_task(
-            controlar_tempo,
-            codigo
-        )
-
-    # ======================================
-    # LIMITE DE RODADAS
-    # ======================================
-
-    if sala["rodada"] < sala["total_rodadas"]:
-
-        if sala["modo"] == "solo":
-            iniciar_proxima_rodada(sala)
-        else:
-            iniciar_intervalo(sala)
-
-    disponiveis = [
-        letra
-        for letra in LETRAS
-        if letra not in sala["letras_removidas"]
-    ]
-
-    if not disponiveis:
-        finalizar_jogo(codigo)
-        return
-
-    sala["em_intervalo"] = False
-    sala["fim_intervalo"] = None
-
-    sala["letra"] = random.choice(
-        disponiveis
-    )
-
-    sala["responderam"] = set()
-    sala["encerrando_rodada"] = False
-
-    sala["fim_rodada"] = (
-        time.time()
-        + sala["tempo_rodada"]
-    )
 
     socketio.emit(
         "nova_rodada",
@@ -927,6 +954,10 @@ def iniciar_rodada(codigo):
 
     atualizar_lobby(codigo)
 
+    # ======================================
+    # INICIAR CRONÔMETRO
+    # ======================================
+
     if not sala["timer_ativo"]:
 
         sala["timer_ativo"] = True
@@ -945,6 +976,7 @@ def jogadores_pendentes(sala):
 
     return [
         jogador
+
         for jogador in sala["jogadores"]
 
         if sala["vidas"].get(
@@ -970,7 +1002,6 @@ def todos_responderam(codigo):
     vivos = [
         jogador
         for jogador in sala["jogadores"]
-
         if sala["vidas"].get(
             jogador,
             0
@@ -999,6 +1030,7 @@ def controlar_tempo(codigo):
         if not sala["jogo_iniciado"]:
 
             sala["timer_ativo"] = False
+
             return
 
         # ==================================
@@ -1008,7 +1040,9 @@ def controlar_tempo(codigo):
         if sala["em_intervalo"]:
 
             if sala["fim_intervalo"] is None:
+
                 socketio.sleep(0.5)
+
                 continue
 
             restante = max(
@@ -1029,9 +1063,13 @@ def controlar_tempo(codigo):
             )
 
             if restante <= 0:
-                iniciar_proxima_rodada(codigo)
+
+                iniciar_proxima_rodada(
+                    codigo
+                )
 
             socketio.sleep(1)
+
             continue
 
         # ==================================
@@ -1041,6 +1079,7 @@ def controlar_tempo(codigo):
         if sala["fim_rodada"] is None:
 
             socketio.sleep(0.5)
+
             continue
 
         restante = max(
@@ -1106,7 +1145,11 @@ def terminar_rodada(
         )
 
         for jogador in pendentes:
+
             sala["vidas"][jogador] -= 1
+
+            if sala["vidas"][jogador] < 0:
+                sala["vidas"][jogador] = 0
 
     # ======================================
     # ZERA TIMER
@@ -1165,20 +1208,32 @@ def terminar_rodada(
         return
 
     # ======================================
-    # PRÓXIMA RODADA
+    # MODO SOLO
     # ======================================
 
     if sala["modo"] == "solo":
 
-        # No solo, próxima rodada imediatamente
         sala["rodada"] += 1
 
         iniciar_rodada(codigo)
 
+        return
+
+    # ======================================
+    # MULTIPLAYER
+    # ======================================
+
+    if sala["intervalo_habilitado"]:
+
+        # Intervalo de 2 minutos
+        iniciar_intervalo(codigo)
+
     else:
 
-        # Multiplayer usa intervalo de 3 minutos
-        iniciar_intervalo(codigo)
+        # Sem intervalo
+        sala["rodada"] += 1
+
+        iniciar_rodada(codigo)
 
 
 # ==========================================
@@ -1195,10 +1250,31 @@ def iniciar_intervalo(codigo):
     if not sala["jogo_iniciado"]:
         return
 
+    # ======================================
+    # SE INTERVALO ESTIVER DESATIVADO
+    # ======================================
+
+    if not sala["intervalo_habilitado"]:
+
+        sala["rodada"] += 1
+
+        iniciar_rodada(codigo)
+
+        return
+
+    # ======================================
+    # ÚLTIMA RODADA
+    # ======================================
+
     if sala["rodada"] >= sala["total_rodadas"]:
 
         finalizar_jogo(codigo)
+
         return
+
+    # ======================================
+    # INICIAR INTERVALO
+    # ======================================
 
     sala["em_intervalo"] = True
 
@@ -1248,7 +1324,9 @@ def iniciar_proxima_rodada(codigo):
         return
 
     sala["em_intervalo"] = False
+
     sala["fim_intervalo"] = None
+
     sala["rodada"] += 1
 
     iniciar_rodada(codigo)
@@ -1325,11 +1403,17 @@ def finalizar_jogo(codigo):
     rodada_final = sala["rodada"]
 
     sala["jogo_iniciado"] = False
+
     sala["fim_rodada"] = None
+
     sala["fim_intervalo"] = None
+
     sala["letra"] = None
+
     sala["timer_ativo"] = False
+
     sala["encerrando_rodada"] = False
+
     sala["em_intervalo"] = False
 
     # ======================================
@@ -1485,6 +1569,7 @@ def enviar_carro(data):
         not sala["fim_rodada"]
         or time.time() >= sala["fim_rodada"]
     ):
+
         return
 
     n = normalizar_carro(carro)
@@ -1496,6 +1581,9 @@ def enviar_carro(data):
     def erro(mensagem):
 
         sala["vidas"][nome] -= 1
+
+        if sala["vidas"][nome] < 0:
+            sala["vidas"][nome] = 0
 
         emit(
             "resposta_carro",
@@ -1564,6 +1652,7 @@ def enviar_carro(data):
     # ======================================
 
     sala["carros_usados"].append(n)
+
     sala["responderam"].add(nome)
 
     # ======================================
@@ -1571,6 +1660,7 @@ def enviar_carro(data):
     # ======================================
 
     sala["pontos"][nome] += 1
+
     sala["respostas_validas"][nome] += 1
 
     socketio.emit(
