@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Stopkart</title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* =========================================
+           FUNDO
+        ========================================= */
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family: "Inter", sans-serif;
+
+            background: #101114;
+            color: #f2f2f2;
+
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+
+            width: 700px;
+            height: 700px;
+
+            top: -250px;
+            left: -200px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(80, 120, 255, 0.16),
+                    transparent 65%
+                );
+
+            filter: blur(20px);
+
+            animation:
+                moverLuz1 12s ease-in-out infinite alternate;
+
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+
+            position: fixed;
+
+            width: 650px;
+            height: 650px;
+
+            right: -220px;
+            bottom: -250px;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(180, 70, 255, 0.13),
+                    transparent 65%
+                );
+
+            filter: blur(25px);
+
+            animation:
+                moverLuz2 15s ease-in-out infinite alternate;
+
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        @keyframes moverLuz1 {
+
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(280px, 180px) scale(1.2);
+            }
+
+            100% {
+                transform: translate(100px, 400px) scale(0.9);
+            }
+
+        }
+
+        @keyframes moverLuz2 {
+
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-250px, -150px) scale(1.25);
+            }
+
+            100% {
+                transform: translate(-100px, -350px) scale(0.9);
+            }
+
+        }
+
+        /* =========================================
+           GRADE
+        ========================================= */
+
+        .background-grid {
+            position: fixed;
+            inset: 0;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    transparent,
+                    black 20%,
+                    black 80%,
+                    transparent
+                );
+
+            animation:
+                moverGrade 20s linear infinite;
+
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes moverGrade {
+
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 45px 45px;
+            }
+
+        }
+
+        /* =========================================
+           CONTAINER
+        ========================================= */
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+
+            padding: 25px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================================
+           TÍTULO
+        ========================================= */
+
+        .titulo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .titulo h1 {
+            font-size: 46px;
+
+            margin: 0;
+
+            font-weight: 800;
+
+            text-shadow:
+                0 0 25px rgba(255,255,255,0.08);
+        }
+
+        .titulo p {
+            color: #999;
+        }
+
+        /* =========================================
+           CARDS
+        ========================================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 20px;
+        }
+
+        .card {
+            background:
+                rgba(24, 25, 30, 0.88);
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            border-radius: 16px;
+
+            padding: 28px;
+
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            box-shadow:
+                0 15px 50px rgba(0,0,0,0.25);
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+
+            border-color:
+                rgba(255,255,255,0.13);
+
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.35);
+        }
+
+        /* =========================================
+           INPUTS
+        ========================================= */
+
+        input {
+            width: 100%;
+
+            padding: 13px;
+
+            margin-top: 8px;
+
+            border-radius: 9px;
+
+            border:
+                1px solid #303239;
+
+            background:
+                rgba(16,17,20,0.9);
+
+            color: white;
+
+            font-family: inherit;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: #666;
+
+            box-shadow:
+                0 0 0 3px rgba(255,255,255,0.04);
+        }
+
+        /* =========================================
+           BOTÕES
+        ========================================= */
+
+        button {
+            width: 100%;
+
+            padding: 13px;
+
+            margin-top: 12px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: #f2f2f2;
+
+            color: #111;
+
+            font-family: inherit;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.15s,
+                box-shadow 0.2s,
+                background 0.2s;
+        }
+
+        button:hover {
+            background: white;
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 8px 25px rgba(255,255,255,0.08);
+        }
+
+        button:active {
+            transform:
+                translateY(0);
+        }
+
+        /* =========================================
+           CONFIGURAÇÕES
+        ========================================= */
+
+        .config {
+            margin-top: 20px;
+
+            padding-top: 20px;
+
+            border-top:
+                1px solid #292b31;
+        }
+
+        .config h3 {
+            margin-top: 0;
+        }
+
+        .config label {
+            display: block;
+
+            margin-top: 12px;
+
+            font-size: 14px;
+
+            color: #bbb;
+        }
+
+        /* =========================================
+           MODOS
+        ========================================= */
+
+        .modos {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 10px;
+        }
+
+        .modo {
+            margin: 0;
+
+            padding: 12px;
+
+            background: #22242a;
+
+            border:
+                1px solid #303239;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            text-align: center;
+
+            font-weight: 700;
+
+            color: #aaa;
+
+            transition: 0.2s;
+        }
+
+        .modo:hover {
+            background: #2b2e35;
+
+            color: white;
+
+            transform:
+                translateY(-1px);
+        }
+
+        .modo input {
+            display: none;
+        }
+
+        .modo:has(input:checked) {
+            background: #30333a;
+
+            border-color: #777;
+
+            color: white;
+
+            box-shadow:
+                0 0 20px rgba(255,255,255,0.04);
+        }
+
+        /* =========================================
+           INTERVALO
+        ========================================= */
+
+        #config-intervalo {
+            margin-top: 18px;
+
+            padding: 14px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            border:
+                1px solid #303239;
+
+            border-radius: 10px;
+        }
+
+        #btn-intervalo {
+            margin-top: 0;
+
+            background: #22242a;
+
+            border:
+                1px solid #303239;
+
+            color: white;
+        }
+
+        #btn-intervalo:hover {
+            background: #30333a;
+        }
+
+        #btn-intervalo.desativado {
+            color: #aaa;
+        }
+
+        #info-intervalo {
+            margin-top: 8px;
+
+            color: #777;
+
+            font-size: 12px;
+
+            text-align: center;
+        }
+
+        /* =========================================
+           LETRAS
+        ========================================= */
+
+        .letras {
+            display: grid;
+
+            grid-template-columns:
+                repeat(13, 1fr);
+
+            gap: 5px;
+
+            margin-top: 10px;
+        }
+
+        .letras label {
+            margin: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 6px;
+
+            border-radius: 6px;
+
+            background: #22242a;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            transition: 0.2s;
+        }
+
+        .letras label:hover {
+            background: #2d3037;
+
+            transform:
+                translateY(-1px);
+        }
+
+        .letras input {
+            width: auto;
+
+            margin:
+                0 3px 0 0;
+        }
+
+        /* =========================================
+           DESATIVADO
+        ========================================= */
+
+        input:disabled {
+            opacity: 0.4;
+
+            cursor: not-allowed;
+        }
+
+        .ajuda {
+            margin-top: 6px;
+
+            color: #777;
+
+            font-size: 12px;
+        }
+
+        /* =========================================
+           MÚSICA
+        ========================================= */
+
+        .musica-bloco {
+            position: fixed;
+
+            right: 20px;
+            bottom: 20px;
+
+            width: 230px;
+
+            padding: 15px;
+
+            background:
+                rgba(24, 25, 30, 0.92);
+
+            border:
+                1px solid rgba(255,255,255,0.08);
+
+            border-radius: 14px;
+
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+
+            box-shadow:
+                0 15px 45px rgba(0,0,0,0.35);
+
+            z-index: 1000;
+        }
+
+        .musica-titulo {
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #aaa;
+
+            margin-bottom: 8px;
+        }
+
+        .botao-musica {
+            width: 100%;
+
+            margin: 0;
+
+            padding: 10px;
+
+            border:
+                1px solid #303239;
+
+            border-radius: 9px;
+
+            background: #22242a;
+
+            color: #fff;
+
+            font-family: inherit;
+
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .botao-musica:hover {
+            background: #30333a;
+        }
+
+        /* =========================================
+           RESPONSIVO
+        ========================================= */
+
+        @media (max-width: 750px) {
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .letras {
+                grid-template-columns:
+                    repeat(6, 1fr);
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .titulo h1 {
+                font-size: 36px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .musica-bloco {
+                right: 15px;
+
+                bottom: 15px;
+
+                width: 200px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-grid"></div>
+
+    <div class="container">
+
+        <div class="titulo">
+
+            <h1>🏎️ Stopkart</h1>
+
+            <p>
+                pense rápido. escolha um carro. não repita.
+            </p>
+
+        </div>
+
+        <div class="cards">
+
+            <!-- =========================
+                 CRIAR SALA
+            ========================= -->
+
+            <div class="card">
+
+                <h2>🎮 Criar sala</h2>
+
+                <p>
+                    configure a partida do seu jeito.
+                </p>
+
+                <form
+                    action="/criar"
+                    method="POST"
+                >
+
+                    <!-- NOME -->
+
+                    <input
+                        type="text"
+                        id="nome-criar"
+                        name="nome"
+                        placeholder="seu nome"
+                        maxlength="20"
+                        pattern="[A-Za-z0-9_]+"
+                        title="use apenas letras, números e _"
+                        required
+                    >
+
+                    <div class="config">
+
+                        <h3>
+                            ⚙️ Configurações da sala
+                        </h3>
+
+                        <!-- =========================
+                             MODO
+                        ========================= -->
+
+                        <label>
+                            🎮 modo de jogo
+                        </label>
+
+                        <div class="modos">
+
+                            <label class="modo">
+
+                                <input
+                                    type="radio"
+                                    name="modo"
+                                    value="multi"
+                                    checked
+                                >
+
+                                👥 multiplayer
+
+                            </label>
+
+                            <label class="modo">
+
+                                <input
+                                    type="radio"
+                                    name="modo"
+                                    value="solo"
+                                >
+
+                                👤 solo
+
+                            </label>
+
+                        </div>
+
+                        <!-- =========================
+                             INTERVALO
+                        ========================= -->
+
+                        <div id="config-intervalo">
+
+                            <input
+                                type="hidden"
+                                id="intervalo-habilitado"
+                                name="intervalo_habilitado"
+                                value="1"
+                            >
+
+                            <button
+                                id="btn-intervalo"
+                                type="button"
+                            >
+                                ⏱️ intervalo: ativado
+                            </button>
+
+                            <div id="info-intervalo">
+                                2 minutos entre cada rodada
+                            </div>
+
+                        </div>
+
+                        <!-- =========================
+                             RODADAS
+                        ========================= -->
+
+                        <label for="total-rodadas">
+                            🔄 número de rodadas
+                        </label>
+
+                        <input
+                            type="number"
+                            id="total-rodadas"
+                            name="total_rodadas"
+                            value="6"
+                            min="1"
+                            max="20"
+                            required
+                        >
+
+                        <div class="ajuda">
+                            escolha de 1 até 20 rodadas
+                        </div>
+
+                        <!-- =========================
+                             TEMPO
+                        ========================= -->
+
+                        <label for="tempo">
+                            ⏱️ tempo por rodada
+                            (segundos)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="tempo"
+                            name="tempo"
+                            value="120"
+                            min="30"
+                            max="600"
+                            required
+                        >
+
+                        <!-- =========================
+                             JOGADORES
+                        ========================= -->
+
+                        <label for="max-jogadores">
+                            👥 máximo de jogadores
+                        </label>
+
+                        <input
+                            type="number"
+                            id="max-jogadores"
+                            name="max_jogadores"
+                            value="10"
+                            min="2"
+                            max="20"
+                            required
+                        >
+
+                        <div
+                            class="ajuda"
+                            id="ajuda-jogadores"
+                        >
+                            máximo de pessoas na sala
+                        </div>
+
+                        <!-- =========================
+                             LETRAS
+                        ========================= -->
+
+                        <label>
+                            🔤 letras que não serão sorteadas
+                        </label>
+
+                        <div class="letras">
+
+                            {% for letra in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+
+                                <label>
+
+                                    <input
+                                        type="checkbox"
+                                        name="letras_removidas"
+                                        value="{{ letra }}"
+                                    >
+
+                                    {{ letra }}
+
+                                </label>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit">
+                        criar sala
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- =========================
+                 ENTRAR
+            ========================= -->
+
+            <div class="card">
+
+                <h2>🚪 Entrar na sala</h2>
+
+                <p>
+                    já tem um código? entre na partida.
+                </p>
+
+                <form
+                    action="/entrar"
+                    method="POST"
+                >
+
+                    <input
+                        type="text"
+                        name="nome"
+                        placeholder="seu nome"
+                        maxlength="20"
+                        pattern="[A-Za-z0-9_]+"
+                        title="use apenas letras, números e _"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        name="codigo"
+                        placeholder="código da sala"
+                        maxlength="6"
+                        pattern="[A-Za-z0-9]+"
+                        title="use apenas letras e números"
+                        required
+                    >
+
+                    <button type="submit">
+                        entrar na sala
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================
+         MÚSICA
+    ========================= -->
+
+    <audio id="musica-lobby" loop>
+
+        <source
+            src="{{ url_for('static', filename='musicas/lobby.mp3') }}"
+            type="audio/mpeg"
+        >
+
+    </audio>
+
+    <div class="musica-bloco">
+
+        <div class="musica-titulo">
+            🎵 música
+        </div>
+
+        <button
+            id="botao-musica"
+            class="botao-musica"
+            type="button"
+        >
+            🔊 música ligada
+        </button>
+
+    </div>
+
+    <script>
+
+        // =====================================================
+        // MODO SOLO / MULTIPLAYER
+        // =====================================================
+
+        const modos =
+            document.querySelectorAll(
+                'input[name="modo"]'
+            );
+
+        const campoMaxJogadores =
+            document.querySelector(
+                "#max-jogadores"
+            );
+
+        const ajudaJogadores =
+            document.querySelector(
+                "#ajuda-jogadores"
+            );
+
+        const configIntervalo =
+            document.querySelector(
+                "#config-intervalo"
+            );
+
+        const btnIntervalo =
+            document.querySelector(
+                "#btn-intervalo"
+            );
+
+        const intervaloHabilitado =
+            document.querySelector(
+                "#intervalo-habilitado"
+            );
+
+        function atualizarModo() {
+
+            const modoSelecionado =
+                document.querySelector(
+                    'input[name="modo"]:checked'
+                ).value;
+
+            // =========================================
+            // SOLO
+            // =========================================
+
+            if (modoSelecionado === "solo") {
+
+                campoMaxJogadores.value = 1;
+
+                campoMaxJogadores.disabled = true;
+
+                campoMaxJogadores.removeAttribute(
+                    "required"
+                );
+
+                ajudaJogadores.textContent =
+                    "modo solo: somente você";
+
+                // intervalo não existe no solo
+
+                configIntervalo.style.display =
+                    "none";
+
+                intervaloHabilitado.value =
+                    "0";
+
+            }
+
+            // =========================================
+            // MULTIPLAYER
+            // =========================================
+
+            else {
+
+                campoMaxJogadores.disabled =
+                    false;
+
+                campoMaxJogadores.setAttribute(
+                    "required",
+                    ""
+                );
+
+                if (
+                    Number(campoMaxJogadores.value) < 2
+                ) {
+
+                    campoMaxJogadores.value =
+                        10;
+
+                }
+
+                ajudaJogadores.textContent =
+                    "máximo de pessoas na sala";
+
+                configIntervalo.style.display =
+                    "block";
+
+                atualizarBotaoIntervalo();
+
+            }
+
+        }
+
+        modos.forEach(function(modo) {
+
+            modo.addEventListener(
+                "change",
+                atualizarModo
+            );
+
+        });
+
+        // =====================================================
+        // INTERVALO
+        // =====================================================
+
+        function atualizarBotaoIntervalo() {
+
+            if (
+                intervaloHabilitado.value === "1"
+            ) {
+
+                btnIntervalo.textContent =
+                    "⏱️ intervalo: ativado";
+
+                btnIntervalo.classList.remove(
+                    "desativado"
+                );
+
+                document.getElementById(
+                    "info-intervalo"
+                ).textContent =
+                    "2 minutos entre cada rodada";
+
+            }
+
+            else {
+
+                btnIntervalo.textContent =
+                    "⏭️ intervalo: desativado";
+
+                btnIntervalo.classList.add(
+                    "desativado"
+                );
+
+                document.getElementById(
+                    "info-intervalo"
+                ).textContent =
+                    "as rodadas começam automaticamente";
+
+            }
+
+        }
+
+        btnIntervalo.addEventListener(
+            "click",
+            function() {
+
+                if (
+                    intervaloHabilitado.value === "1"
+                ) {
+
+                    intervaloHabilitado.value =
+                        "0";
+
+                }
+
+                else {
+
+                    intervaloHabilitado.value =
+                        "1";
+
+                }
+
+                atualizarBotaoIntervalo();
+
+            }
+        );
+
+        atualizarModo();
+
+        // =====================================================
+        // NOME
+        // =====================================================
+
+        const nomes =
+            document.querySelectorAll(
+                'input[name="nome"]'
+            );
+
+        nomes.forEach(function(input) {
+
+            input.addEventListener(
+                "input",
+                function() {
+
+                    this.value =
+                        this.value.replace(
+                            /[^a-zA-Z0-9_]/g,
+                            ""
+                        );
+
+                }
+            );
+
+        });
+
+        // =====================================================
+        // CÓDIGO DA SALA
+        // =====================================================
+
+        const codigo =
+            document.querySelector(
+                'input[name="codigo"]'
+            );
+
+        codigo.addEventListener(
+            "input",
+            function() {
+
+                this.value =
+                    this.value
+                        .replace(
+                            /[^a-zA-Z0-9]/g,
+                            ""
+                        )
+                        .toUpperCase();
+
+            }
+        );
+
+        // =====================================================
+        // MÚSICA
+        // =====================================================
+
+        const musicaLobby =
+            document.getElementById(
+                "musica-lobby"
+            );
+
+        const botaoMusica =
+            document.getElementById(
+                "botao-musica"
+            );
+
+        let musicaLigada = true;
+
+        musicaLobby.volume =
+            0.35;
+
+        function tocarMusica() {
+
+            if (!musicaLigada) {
+                return;
+            }
+
+            musicaLobby.play().catch(() => {
+
+                console.log(
+                    "a música começará após uma interação."
+                );
+
+            });
+
+        }
+
+        botaoMusica.addEventListener(
+            "click",
+            function() {
+
+                musicaLigada =
+                    !musicaLigada;
+
+                if (musicaLigada) {
+
+                    botaoMusica.textContent =
+                        "🔊 música ligada";
+
+                    tocarMusica();
+
+                }
+
+                else {
+
+                    musicaLobby.pause();
+
+                    botaoMusica.textContent =
+                        "🔇 música desligada";
+
+                }
+
+            }
+        );
+
+        document.addEventListener(
+            "click",
+            function iniciarMusica() {
+
+                if (musicaLigada) {
+
+                    tocarMusica();
+
+                }
+
+                document.removeEventListener(
+                    "click",
+                    iniciarMusica
+                );
+
+            },
+            { once: true }
+        );
+
+    </script>
+
+</body>
+
+</html>

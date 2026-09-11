@@ -1,0 +1,2750 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Stopkart - Sala {{ codigo }}</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='logo.png') }}"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #101114;
+            color: #f2f2f2;
+            font-family: Inter, sans-serif;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: #15161a;
+            border-bottom: 1px solid #292b30;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .codigo {
+            padding: 9px 15px;
+            border-radius: 9px;
+            background: #22242a;
+            color: #ccc;
+            font-weight: 600;
+        }
+
+        .menu,
+        .aba {
+            width: calc(100% - 30px);
+            max-width: 1030px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .menu {
+            margin-top: 28px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu button {
+            padding: 12px 22px;
+            border: 0;
+            border-radius: 10px;
+            background: #22242a;
+            color: #bbb;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .menu button.ativo {
+            background: #30333a;
+            color: #fff;
+        }
+
+        .aba {
+            display: none;
+            margin-top: 22px;
+            margin-bottom: 35px;
+        }
+
+        .aba.ativa {
+            display: block;
+        }
+
+        .card {
+            background: #18191e;
+            border: 1px solid #292b31;
+            border-radius: 15px;
+            padding: 26px;
+            box-shadow: 0 10px 30px #0002;
+        }
+
+        h2 {
+            margin: 0 0 20px;
+            font-size: 27px;
+        }
+
+        h3 {
+            color: #bbb;
+        }
+
+        .lobby-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .jogadores {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .jogadores li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            background: #22242a;
+            border-radius: 9px;
+        }
+
+        .jogador-info {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .host {
+            color: #ffd86b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .vidas {
+            color: #ff7777;
+            font-weight: 700;
+        }
+
+        .pontos-lobby {
+            color: #8db4ff;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .eliminado {
+            opacity: .45;
+        }
+
+        .config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .config div {
+            padding: 12px;
+            background: #22242a;
+            border-radius: 9px;
+            color: #aaa;
+        }
+
+        .config strong {
+            display: block;
+            color: #fff;
+            font-size: 16px;
+            margin-top: 4px;
+        }
+
+        .jogo-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+        }
+
+        .letra-card {
+            min-height: 370px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .letra-label {
+            color: #999;
+        }
+
+        .letra {
+            font-size: 105px;
+            font-weight: 800;
+            margin: 12px 0;
+        }
+
+        .instrucao {
+            color: #aaa;
+        }
+
+        .status {
+            display: flex;
+            gap: 42px;
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid #292b31;
+        }
+
+        .status div {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .status strong {
+            display: block;
+            color: #fff;
+            font-size: 18px;
+            margin-top: 5px;
+        }
+
+        .entrada {
+            display: flex;
+            gap: 9px;
+        }
+
+        .entrada input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        input {
+            padding: 13px 14px;
+            border-radius: 9px;
+            border: 1px solid #303239;
+            background: #101114;
+            color: #fff;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #666;
+        }
+
+        .acao {
+            padding: 13px 17px;
+            border: 0;
+            border-radius: 9px;
+            background: #f2f2f2;
+            color: #111;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .acao:disabled,
+        input:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        #carros-enviados {
+            margin-top: 20px;
+            max-height: 230px;
+            overflow-y: auto;
+        }
+
+        .carro-item,
+        .chat-msg {
+            padding: 11px 13px;
+            margin-bottom: 7px;
+            border-radius: 8px;
+            background: #22242a;
+        }
+
+        .carro-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .carro-jogador {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #chat {
+            height: 500px;
+            padding: 18px;
+            overflow-y: auto;
+            background: #101114;
+            border: 1px solid #292b31;
+            border-radius: 12px;
+        }
+
+        .chat-nome {
+            font-weight: 700;
+        }
+
+        .chat-bloqueado {
+            color: #ff7777;
+        }
+
+        .entrada-chat {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .entrada-chat input {
+            flex: 1;
+        }
+
+        .aviso {
+            display: none;
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 9px;
+            background: #22242a;
+            text-align: center;
+            color: #aaa;
+        }
+
+        .conexao {
+            font-size: 13px;
+            color: #f77;
+            margin-bottom: 15px;
+        }
+
+        /* ==========================================
+           INTERVALO
+        ========================================== */
+
+        .intervalo-card {
+            display: none;
+            margin-top: 20px;
+            padding: 22px;
+            background: #22242a;
+            border: 1px solid #30333a;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .intervalo-card.ativo {
+            display: block;
+        }
+
+        .intervalo-titulo {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .intervalo-subtitulo {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .intervalo-tempo {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 8px 0 18px;
+        }
+
+        .intervalo-info {
+            color: #aaa;
+            margin-bottom: 18px;
+        }
+
+        .btn-pular-intervalo {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: #f2f2f2;
+            color: #111;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-pular-intervalo:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        /* ==========================================
+           MÚSICA
+        ========================================== */
+
+        .musica-bloco {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 230px;
+            padding: 15px;
+            background: rgba(24, 25, 30, 0.94);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow:
+                0 15px 45px rgba(0,0,0,0.35);
+            z-index: 1000;
+        }
+
+        .musica-titulo {
+            font-size: 13px;
+            font-weight: 700;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .botao-musica {
+            width: 100%;
+            padding: 10px;
+            margin: 0;
+            border: 1px solid #303239;
+            border-radius: 9px;
+            background: #22242a;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .botao-musica:hover {
+            background: #30333a;
+        }
+
+        /* ==========================================
+           RANKING
+        ========================================== */
+
+        .ranking-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .78);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+
+        .ranking-overlay.ativo {
+            display: flex;
+        }
+
+        .ranking-modal {
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #18191e;
+            border: 1px solid #33363d;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 30px 80px #000;
+        }
+
+        .ranking-titulo {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .ranking-subtitulo {
+            text-align: center;
+            color: #999;
+            margin-bottom: 25px;
+        }
+
+        .ranking-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ranking-item {
+            display: grid;
+            grid-template-columns: 55px 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #22242a;
+            border-radius: 12px;
+            border: 1px solid transparent;
+        }
+
+        .ranking-item.primeiro {
+            border-color: #66531f;
+            background: #29261d;
+        }
+
+        .ranking-posicao {
+            font-size: 21px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .ranking-nome {
+            font-weight: 700;
+        }
+
+        .ranking-detalhes {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .ranking-pontos {
+            text-align: right;
+            font-weight: 800;
+            color: #8db4ff;
+        }
+
+        .ranking-botoes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .ranking-botoes button {
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-fechar {
+            background: #30333a;
+            color: #fff;
+        }
+
+        .btn-final {
+            background: #f2f2f2;
+            color: #111;
+        }
+
+        @media(max-width:850px) {
+
+            header {
+                padding: 18px;
+            }
+
+            .lobby-grid,
+            .jogo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .letra {
+                font-size: 80px;
+            }
+        }
+
+        @media(max-width:500px) {
+
+            .entrada,
+            .entrada-chat {
+                flex-direction: column;
+            }
+
+            .entrada > *,
+            .entrada-chat > * {
+                width: 100%;
+            }
+
+            .ranking-modal {
+                padding: 20px;
+            }
+
+            .ranking-item {
+                grid-template-columns: 45px 1fr auto;
+            }
+
+            .musica-bloco {
+                right: 15px;
+                bottom: 15px;
+                width: 200px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body
+    data-codigo="{{ codigo }}"
+    data-nome="{{ nome }}"
+    data-host="{{ host }}"
+    data-modo="{{ modo }}"
+    data-jogo-iniciado="{{ 'true' if jogo_iniciado else 'false' }}"
+    data-em-intervalo="{{ 'true' if em_intervalo else 'false' }}"
+>
+
+    <!-- MÚSICAS -->
+
+    <audio
+        id="musica-lobby"
+        loop
+    >
+
+        <source
+            src="{{ url_for('static', filename='musicas/lobby.mp3') }}"
+            type="audio/mpeg"
+        >
+
+    </audio>
+
+    <audio
+        id="musica-jogo"
+        loop
+    >
+
+        <source
+            src="{{ url_for('static', filename='musicas/sala.mp3') }}"
+            type="audio/mpeg"
+        >
+
+    </audio>
+
+
+    <!-- BLOCO DA MÚSICA -->
+
+    <div class="musica-bloco">
+
+        <div class="musica-titulo">
+            🎵 música
+        </div>
+
+        <button
+            id="botao-musica"
+            class="botao-musica"
+            type="button"
+        >
+            🔊 música ligada
+        </button>
+
+    </div>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="logo">
+            🏎️ Stopkart
+        </div>
+
+        <div class="codigo">
+            sala: {{ codigo }}
+        </div>
+
+    </header>
+
+
+    <!-- MENU -->
+
+    <div class="menu">
+
+        <button
+            id="btn-jogo"
+            class="ativo"
+            onclick="abrirAba('jogo')"
+        >
+            🎮 jogo
+        </button>
+
+        <button
+            id="btn-chat"
+            onclick="abrirAba('chat')"
+        >
+            💬 chat
+        </button>
+
+    </div>
+
+
+    <!-- ==========================================
+         JOGO
+    ========================================== -->
+
+    <div
+        id="jogo"
+        class="aba ativa"
+    >
+
+        <div class="lobby-grid">
+
+            <!-- LOBBY -->
+
+            <div class="card">
+
+                <h2>👥 jogadores</h2>
+
+                <div
+                    id="status-conexao"
+                    class="conexao"
+                >
+                    🔴 conectando...
+                </div>
+
+                <ul
+                    id="lista-jogadores"
+                    class="jogadores"
+                >
+
+                    {% for jogador in jogadores %}
+
+                    <li>
+
+                        <div class="jogador-info">
+
+                            <span>
+                                {{ "💀" if jogador.eliminado else "🟢" }}
+                            </span>
+
+                            <span>
+                                {{ jogador.nome }}
+                            </span>
+
+                            {% if jogador.host %}
+
+                            <span class="host">
+                                HOST
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div>
+
+                            <span class="pontos-lobby">
+                                ⭐ {{ jogador.pontos }}
+                            </span>
+
+                            <span class="vidas">
+                                ❤️ {{ jogador.vidas }}
+                            </span>
+
+                        </div>
+
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+
+                <div class="config">
+
+                    <div>
+
+                        ⏱️ tempo
+
+                        <strong>
+                            {{ tempo }}s
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        👥 máximo
+
+                        <strong>
+                            {{ max_jogadores }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PARTIDA -->
+
+            <div class="card">
+
+                <h2>🎮 partida</h2>
+
+                <p id="estado-partida">
+
+                    {% if jogo_iniciado %}
+
+                        {% if em_intervalo %}
+
+                            intervalo entre rodadas
+
+                        {% else %}
+
+                            partida em andamento
+
+                        {% endif %}
+
+                    {% else %}
+
+                        esperando o host iniciar...
+
+                    {% endif %}
+
+                </p>
+
+                {% if nome == host and not jogo_iniciado %}
+
+                <button
+                    id="botao-comecar"
+                    class="acao"
+                >
+                    👑 começar jogo
+                </button>
+
+                {% endif %}
+
+                <div
+                    id="aviso"
+                    class="aviso"
+                ></div>
+
+                <!-- INTERVALO -->
+
+                <div
+                    id="intervalo"
+                    class="intervalo-card"
+                >
+
+                    <div class="intervalo-titulo">
+                        ⏸️ intervalo entre rodadas
+                    </div>
+
+                    <div
+                        id="intervalo-subtitulo"
+                        class="intervalo-subtitulo"
+                    >
+                        próxima letra em breve
+                    </div>
+
+                    <div
+                        id="tempo-intervalo"
+                        class="intervalo-tempo"
+                    >
+                        03:00
+                    </div>
+
+                    <div
+                        id="intervalo-info"
+                        class="intervalo-info"
+                    >
+                        💬 chat liberado durante o intervalo
+                    </div>
+
+                    <button
+                        id="btn-pular-intervalo"
+                        class="btn-pular-intervalo"
+                        style="display: none;"
+                    >
+                        pular intervalo
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- ÁREA DO JOGO -->
+
+        <div class="jogo-grid">
+
+            <!-- LETRA -->
+
+            <div class="card letra-card">
+
+                <div class="letra-label">
+                    letra sorteada
+                </div>
+
+                <h1
+                    id="letra"
+                    class="letra"
+                    {% if not jogo_iniciado %}
+                    style="display:none"
+                    {% endif %}
+                >
+                    ?
+                </h1>
+
+                <p class="instrucao">
+                    digite um modelo de carro
+                </p>
+
+                <div class="status">
+
+                    <div>
+
+                        rodada
+
+                        <strong id="rodada">
+                            0/{{ total_rodadas }}
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        ⭐ pontos
+
+                        <strong id="meus-pontos">
+                            0
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        ❤️ vidas
+
+                        <strong id="minhas-vidas">
+                            3
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        ⏱️ tempo
+
+                        <strong id="tempo">
+                            {{ "%02d:%02d"|format(tempo//60, tempo%60) }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESPOSTAS -->
+
+            <div class="card">
+
+                <h2>
+                    🚗 respostas
+                </h2>
+
+                <div class="entrada">
+
+                    <input
+                        id="campo-carro"
+                        placeholder="comece o jogo..."
+                        disabled
+                        autocomplete="off"
+                    >
+
+                    <button
+                        id="botao-carro"
+                        class="acao"
+                        disabled
+                    >
+                        enviar
+                    </button>
+
+                </div>
+
+                <div id="carros-enviados"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         CHAT
+    ========================================== -->
+
+    <div
+        id="chat-aba"
+        class="aba"
+    >
+
+        <div class="card">
+
+            <h2>
+                💬 chat da sala
+            </h2>
+
+            <div id="chat"></div>
+
+            <div class="entrada-chat">
+
+                <input
+                    id="campo-chat"
+                    placeholder="escreva uma mensagem..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="botao-chat"
+                    class="acao"
+                >
+                    enviar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         RANKING
+    ========================================== -->
+
+    <div
+        id="ranking-overlay"
+        class="ranking-overlay"
+    >
+
+        <div class="ranking-modal">
+
+            <div
+                id="ranking-titulo"
+                class="ranking-titulo"
+            >
+                🏆 ranking
+            </div>
+
+            <div
+                id="ranking-subtitulo"
+                class="ranking-subtitulo"
+            >
+                resultado da rodada
+            </div>
+
+            <div
+                id="ranking-lista"
+                class="ranking-lista"
+            ></div>
+
+            <div class="ranking-botoes">
+
+                <button
+                    id="btn-fechar-ranking"
+                    class="btn-fechar"
+                    onclick="fecharRanking()"
+                >
+                    continuar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script>
+
+        // ==========================================
+        // DADOS
+        // ==========================================
+
+        const dadosPagina = document.body.dataset;
+
+        const codigoSala =
+            dadosPagina.codigo;
+
+        const meuNome =
+            dadosPagina.nome;
+
+        const nomeHost =
+            dadosPagina.host;
+
+        const modoSala =
+            dadosPagina.modo;
+
+        const modoSolo =
+            modoSala === "solo";
+
+        const souHost =
+            meuNome === nomeHost;
+
+
+        // ==========================================
+        // MÚSICA
+        // ==========================================
+
+        const musicaLobby =
+            document.getElementById(
+                "musica-lobby"
+            );
+
+        const musicaJogo =
+            document.getElementById(
+                "musica-jogo"
+            );
+
+        const botaoMusica =
+            document.getElementById(
+                "botao-musica"
+            );
+
+        let musicaLigada = true;
+
+        musicaLobby.volume = 0.35;
+        musicaJogo.volume = 0.35;
+
+
+        function tocarLobby() {
+
+            if (!musicaLigada) {
+                return;
+            }
+
+            musicaJogo.pause();
+            musicaJogo.currentTime = 0;
+
+            musicaLobby.play().catch(() => {
+
+                console.log(
+                    "aguardando interação do usuário"
+                );
+
+            });
+
+        }
+
+
+        function tocarJogo() {
+
+            if (!musicaLigada) {
+                return;
+            }
+
+            musicaLobby.pause();
+            musicaLobby.currentTime = 0;
+
+            musicaJogo.play().catch(() => {
+
+                console.log(
+                    "aguardando interação do usuário"
+                );
+
+            });
+
+        }
+
+
+        function pararMusicas() {
+
+            musicaLobby.pause();
+            musicaJogo.pause();
+
+        }
+
+
+        botaoMusica.addEventListener(
+            "click",
+            function() {
+
+                musicaLigada =
+                    !musicaLigada;
+
+                if (musicaLigada) {
+
+                    botaoMusica.textContent =
+                        "🔊 música ligada";
+
+                    if (
+                        musicaJogo.currentTime > 0 &&
+                        !musicaJogo.paused
+                    ) {
+
+                        musicaJogo.play().catch(() => {});
+
+                    } else {
+
+                        tocarLobby();
+
+                    }
+
+                } else {
+
+                    pararMusicas();
+
+                    botaoMusica.textContent =
+                        "🔇 música desligada";
+
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "click",
+            function iniciarMusica() {
+
+                if (musicaLigada) {
+
+                    if (
+                        musicaJogo.currentTime > 0 &&
+                        !musicaJogo.paused
+                    ) {
+
+                        musicaJogo.play().catch(() => {});
+
+                    } else {
+
+                        tocarLobby();
+
+                    }
+
+                }
+
+                document.removeEventListener(
+                    "click",
+                    iniciarMusica
+                );
+
+            },
+            { once: true }
+        );
+
+
+        // ==========================================
+        // SOCKET
+        // ==========================================
+
+        const socket = io();
+
+
+        const campoCarro =
+            document.getElementById(
+                "campo-carro"
+            );
+
+        const botaoCarro =
+            document.getElementById(
+                "botao-carro"
+            );
+
+        const campoChat =
+            document.getElementById(
+                "campo-chat"
+            );
+
+        const botaoChat =
+            document.getElementById(
+                "botao-chat"
+            );
+
+        const statusConexao =
+            document.getElementById(
+                "status-conexao"
+            );
+
+        const botaoComecar =
+            document.getElementById(
+                "botao-comecar"
+            );
+
+        const intervalo =
+            document.getElementById(
+                "intervalo"
+            );
+
+        const intervaloSubtitulo =
+            document.getElementById(
+                "intervalo-subtitulo"
+            );
+
+        const tempoIntervalo =
+            document.getElementById(
+                "tempo-intervalo"
+            );
+
+        const intervaloInfo =
+            document.getElementById(
+                "intervalo-info"
+            );
+
+        const btnPularIntervalo =
+            document.getElementById(
+                "btn-pular-intervalo"
+            );
+
+
+        // ==========================================
+        // CONTROLE LOCAL
+        // ==========================================
+
+        let jaRespondi = false;
+
+        let jogoIniciadoLocal = document.body.dataset.jogoIniciado === "true";
+        let emIntervalo = document.body.dataset.emIntervalo === "true";
+
+
+        // ==========================================
+        // ESCONDER CHAT NO SOLO
+        // ==========================================
+
+        function configurarModoSolo() {
+
+            if (!modoSolo) {
+                return;
+            }
+
+            const btnChat =
+                document.getElementById(
+                    "btn-chat"
+                );
+
+            const chatAba =
+                document.getElementById(
+                    "chat-aba"
+                );
+
+            if (btnChat) {
+                btnChat.style.display = "none";
+            }
+
+            if (chatAba) {
+                chatAba.style.display = "none";
+            }
+
+        }
+
+        configurarModoSolo();
+
+
+        // ==========================================
+        // ESTADO DO CHAT
+        // ==========================================
+
+        function atualizarChatEstado() {
+
+            if (modoSolo) {
+                return;
+            }
+
+            const bloqueado =
+                jogoIniciadoLocal &&
+                !emIntervalo;
+
+            campoChat.disabled =
+                bloqueado;
+
+            botaoChat.disabled =
+                bloqueado;
+
+            if (bloqueado) {
+
+                campoChat.placeholder =
+                    "chat bloqueado durante a rodada...";
+
+            } else {
+
+                campoChat.placeholder =
+                    "escreva uma mensagem...";
+
+            }
+
+        }
+
+
+        // ==========================================
+        // ABAS
+        // ==========================================
+
+        function abrirAba(aba) {
+
+            if (
+                aba === "chat" &&
+                modoSolo
+            ) {
+                return;
+            }
+
+            document
+                .querySelectorAll(".aba")
+                .forEach(
+                    x =>
+                        x.classList.remove(
+                            "ativa"
+                        )
+                );
+
+            document
+                .querySelectorAll(
+                    ".menu button"
+                )
+                .forEach(
+                    x =>
+                        x.classList.remove(
+                            "ativo"
+                        )
+                );
+
+            if (aba === "jogo") {
+
+                document
+                    .getElementById("jogo")
+                    .classList.add("ativa");
+
+                document
+                    .getElementById("btn-jogo")
+                    .classList.add("ativo");
+
+            } else {
+
+                const chatAba =
+                    document.getElementById(
+                        "chat-aba"
+                    );
+
+                const btnChat =
+                    document.getElementById(
+                        "btn-chat"
+                    );
+
+                if (!chatAba || !btnChat) {
+                    return;
+                }
+
+                chatAba.classList.add("ativa");
+                btnChat.classList.add("ativo");
+
+            }
+
+        }
+
+
+        // ==========================================
+        // CONEXÃO
+        // ==========================================
+
+        socket.on(
+            "connect",
+            () => {
+
+                statusConexao.textContent =
+                    "🟢 conectado";
+
+                statusConexao.style.color =
+                    "#6fda8b";
+
+                socket.emit(
+                    "entrar_sala",
+                    {
+                        codigo:
+                            codigoSala,
+
+                        nome:
+                            meuNome
+                    }
+                );
+
+            }
+        );
+
+
+        socket.on(
+            "disconnect",
+            () => {
+
+                statusConexao.textContent =
+                    "🔴 desconectado";
+
+                statusConexao.style.color =
+                    "#ff7777";
+
+            }
+        );
+
+
+        socket.on(
+            "connect_error",
+            () => {
+
+                statusConexao.textContent =
+                    "🔴 erro na conexão";
+
+                statusConexao.style.color =
+                    "#ff7777";
+
+            }
+        );
+
+
+        socket.on(
+            "erro_socket",
+            data => {
+
+                mostrarAviso(
+                    "❌ " +
+                    data.mensagem
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // SALA PRONTA
+        // ==========================================
+
+        socket.on(
+            "sala_pronta",
+            data => {
+
+                atualizarJogadores(data);
+
+                jogoIniciadoLocal =
+                    !!data.jogo_iniciado;
+
+                emIntervalo =
+                    !!data.em_intervalo;
+
+                if (
+                    data.jogo_iniciado &&
+                    data.em_intervalo
+                ) {
+
+                    mostrarIntervalo(data);
+
+                } else if (
+                    data.jogo_iniciado &&
+                    data.letra
+                ) {
+
+                    iniciarInterfaceJogo(
+                        data
+                    );
+
+                }
+
+                atualizarChatEstado();
+
+            }
+        );
+
+
+        // ==========================================
+        // JOGADORES
+        // ==========================================
+
+        function atualizarJogadores(data) {
+
+            const lista =
+                document.getElementById(
+                    "lista-jogadores"
+                );
+
+            lista.innerHTML = "";
+
+            data.jogadores.forEach(
+                jogador => {
+
+                    const li =
+                        document.createElement(
+                            "li"
+                        );
+
+                    if (
+                        jogador.eliminado
+                    ) {
+
+                        li.classList.add(
+                            "eliminado"
+                        );
+
+                    }
+
+                    li.innerHTML = `
+
+                        <div class="jogador-info">
+
+                            <span>
+                                ${
+                                    jogador.eliminado
+                                    ? "💀"
+                                    : "🟢"
+                                }
+                            </span>
+
+                            <span>
+                                ${escapeHtml(
+                                    jogador.nome
+                                )}
+                            </span>
+
+                            ${
+                                jogador.host
+                                ?
+                                '<span class="host">HOST</span>'
+                                :
+                                ""
+                            }
+
+                        </div>
+
+                        <div>
+
+                            <span class="pontos-lobby">
+                                ⭐ ${jogador.pontos || 0}
+                            </span>
+
+                            <span class="vidas">
+                                ❤️ ${jogador.vidas}
+                            </span>
+
+                        </div>
+
+                    `;
+
+                    lista.appendChild(li);
+
+                    if (
+                        jogador.nome ===
+                        meuNome
+                    ) {
+
+                        atualizarMinhasVidas(
+                            jogador.vidas
+                        );
+
+                        atualizarMeusPontos(
+                            jogador.pontos || 0
+                        );
+
+                    }
+
+                }
+            );
+
+            const configs =
+                document.querySelectorAll(
+                    ".config strong"
+                );
+
+            if (
+                configs[0] &&
+                data.tempo !== undefined
+            ) {
+
+                configs[0].textContent =
+                    data.tempo + "s";
+
+            }
+
+        }
+
+
+        socket.on(
+            "atualizar_jogadores",
+            data => {
+
+                atualizarJogadores(data);
+
+                if (
+                    data.jogo_iniciado !== undefined
+                ) {
+
+                    jogoIniciadoLocal =
+                        !!data.jogo_iniciado;
+
+                }
+
+                if (
+                    data.em_intervalo !== undefined
+                ) {
+
+                    emIntervalo =
+                        !!data.em_intervalo;
+
+                }
+
+                atualizarChatEstado();
+
+            }
+        );
+
+
+        // ==========================================
+        // COMEÇAR
+        // ==========================================
+
+        if (botaoComecar) {
+
+            botaoComecar.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        !socket.connected
+                    ) {
+
+                        mostrarAviso(
+                            "🔴 aguardando conexão..."
+                        );
+
+                        return;
+
+                    }
+
+                    botaoComecar.disabled =
+                        true;
+
+                    socket.emit(
+                        "comecar_jogo"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // NOVA RODADA
+        // ==========================================
+
+        function iniciarInterfaceJogo(data) {
+
+            jogoIniciadoLocal = true;
+            emIntervalo = false;
+            jaRespondi = false;
+
+            fecharRanking();
+            esconderIntervalo();
+
+            document
+                .getElementById("rodada")
+                .textContent =
+                    data.rodada +
+                    "/" +
+                    data.total_rodadas;
+
+            document
+                .getElementById("letra")
+                .textContent =
+                    data.letra;
+
+            document
+                .getElementById("letra")
+                .style.display =
+                    "block";
+
+            document
+                .getElementById(
+                    "estado-partida"
+                )
+                .textContent =
+                    "rodada em andamento";
+
+            campoCarro.disabled =
+                false;
+
+            botaoCarro.disabled =
+                false;
+
+            campoCarro.placeholder =
+                "digite um modelo...";
+
+            if (
+                data.tempo !== undefined
+            ) {
+
+                document
+                    .getElementById("tempo")
+                    .textContent =
+                        formatarTempo(
+                            data.tempo
+                        );
+
+            }
+
+            atualizarChatEstado();
+
+            tocarJogo();
+
+        }
+
+
+        socket.on(
+            "nova_rodada",
+            data => {
+
+                iniciarInterfaceJogo(
+                    data
+                );
+
+                document
+                    .getElementById(
+                        "carros-enviados"
+                    )
+                    .innerHTML = "";
+
+                campoCarro.focus();
+
+                mostrarAviso("");
+
+            }
+        );
+
+
+        // ==========================================
+        // INTERVALO
+        // ==========================================
+
+    function mostrarIntervalo(data) {
+
+        // solo não usa intervalo
+        if (modoSolo) {
+            emIntervalo = false;
+            return;
+        }
+
+        jogoIniciadoLocal = true;
+        emIntervalo = true;
+        jaRespondi = false;
+
+            fecharRanking();
+
+            campoCarro.disabled =
+                true;
+
+            botaoCarro.disabled =
+                true;
+
+            campoCarro.placeholder =
+                "aguarde a próxima rodada...";
+
+            intervalo.classList.add(
+                "ativo"
+            );
+
+            intervaloSubtitulo.textContent =
+                "próxima letra: rodada " +
+                data.proxima_rodada;
+
+            intervaloInfo.textContent =
+                "💬 chat liberado durante o intervalo";
+
+            if (
+                data.tempo !== undefined
+            ) {
+
+                tempoIntervalo.textContent =
+                    formatarTempo(
+                        data.tempo
+                    );
+
+                document
+                    .getElementById("tempo")
+                    .textContent =
+                        formatarTempo(
+                            data.tempo
+                        );
+
+            }
+
+            if (
+                souHost &&
+                !modoSolo
+            ) {
+
+                btnPularIntervalo.style.display =
+                    "inline-block";
+
+                btnPularIntervalo.disabled =
+                    false;
+
+            } else {
+
+                btnPularIntervalo.style.display =
+                    "none";
+
+            }
+
+            document
+                .getElementById(
+                    "estado-partida"
+                )
+                .textContent =
+                    "⏸️ intervalo entre rodadas";
+
+            atualizarChatEstado();
+
+        }
+
+
+        function esconderIntervalo() {
+
+            intervalo.classList.remove(
+                "ativo"
+            );
+
+            btnPularIntervalo.style.display =
+                "none";
+
+        }
+
+
+        socket.on(
+            "intervalo_iniciado",
+            data => {
+
+                mostrarIntervalo(data);
+
+            }
+        );
+
+
+        socket.on(
+            "tempo_intervalo_atualizado",
+            data => {
+
+                if (!emIntervalo) {
+                    return;
+                }
+
+                const restante =
+                    data.restante;
+
+                tempoIntervalo.textContent =
+                    formatarTempo(
+                        restante
+                    );
+
+                document
+                    .getElementById("tempo")
+                    .textContent =
+                        formatarTempo(
+                            restante
+                        );
+
+            }
+        );
+
+
+        // ==========================================
+        // PULAR INTERVALO
+        // ==========================================
+
+        if (btnPularIntervalo) {
+
+            btnPularIntervalo.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        !souHost ||
+                        modoSolo ||
+                        !emIntervalo ||
+                        !socket.connected
+                    ) {
+                        return;
+                    }
+
+                    btnPularIntervalo.disabled =
+                        true;
+
+                    socket.emit(
+                        "pular_intervalo"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // TIMER
+        // ==========================================
+
+        socket.on(
+            "tempo_atualizado",
+            data => {
+
+                if (emIntervalo) {
+                    return;
+                }
+
+                document
+                    .getElementById("tempo")
+                    .textContent =
+                        formatarTempo(
+                            data.restante
+                        );
+
+                document
+                    .getElementById("tempo")
+                    .style.color =
+                        data.restante <= 10
+                        ? "#ff7777"
+                        : "white";
+
+            }
+        );
+
+
+        function formatarTempo(s) {
+
+            s = Math.max(
+                0,
+                Math.floor(s)
+            );
+
+            return (
+                String(
+                    Math.floor(s / 60)
+                ).padStart(2, "0")
+
+                +
+
+                ":"
+
+                +
+
+                String(
+                    s % 60
+                ).padStart(2, "0")
+            );
+
+        }
+
+
+        // ==========================================
+        // ENVIAR CARRO
+        // ==========================================
+
+        function enviarCarro() {
+
+            const carro =
+                campoCarro.value.trim();
+
+            if (
+                !carro ||
+                !socket.connected ||
+                jaRespondi ||
+                emIntervalo
+            ) {
+                return;
+            }
+
+            socket.emit(
+                "enviar_carro",
+                {
+                    carro:
+                        carro
+                }
+            );
+
+            campoCarro.value = "";
+
+        }
+
+
+        botaoCarro.addEventListener(
+            "click",
+            enviarCarro
+        );
+
+
+        campoCarro.addEventListener(
+            "keydown",
+            e => {
+
+                if (
+                    e.key === "Enter"
+                ) {
+
+                    enviarCarro();
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // CARRO ACEITO
+        // ==========================================
+
+        socket.on(
+            "carro_aceito",
+            data => {
+
+                adicionarCarro(
+                    data.nome,
+                    data.carro
+                );
+
+                if (
+                    data.nome ===
+                    meuNome
+                ) {
+
+                    jaRespondi = true;
+
+                    campoCarro.disabled =
+                        true;
+
+                    botaoCarro.disabled =
+                        true;
+
+                    campoCarro.placeholder =
+                        "resposta enviada ✓";
+
+                    atualizarMinhasVidas(
+                        data.vidas
+                    );
+
+                    atualizarMeusPontos(
+                        data.pontos
+                    );
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // RESPOSTA ERRADA
+        // ==========================================
+
+        socket.on(
+            "resposta_carro",
+            data => {
+
+                mostrarAviso(
+                    "❌ " +
+                    data.mensagem
+                );
+
+                if (
+                    data.nome === meuNome &&
+                    data.vidas !== undefined
+                ) {
+
+                    atualizarMinhasVidas(
+                        data.vidas
+                    );
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // ADICIONAR CARRO
+        // ==========================================
+
+        function adicionarCarro(
+            nome,
+            carro
+        ) {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "carro-item";
+
+            item.innerHTML = `
+
+                <span>
+                    🚗 ${escapeHtml(carro)}
+                </span>
+
+                <span class="carro-jogador">
+                    ${escapeHtml(nome)}
+                </span>
+
+            `;
+
+            const lista =
+                document.getElementById(
+                    "carros-enviados"
+                );
+
+            lista.appendChild(item);
+
+            lista.scrollTop =
+                lista.scrollHeight;
+
+        }
+
+
+        // ==========================================
+        // VIDAS
+        // ==========================================
+
+        function atualizarMinhasVidas(vidas) {
+
+            document
+                .getElementById(
+                    "minhas-vidas"
+                )
+                .textContent =
+                    vidas;
+
+            if (vidas <= 0) {
+
+                campoCarro.disabled =
+                    true;
+
+                botaoCarro.disabled =
+                    true;
+
+                campoCarro.placeholder =
+                    "você foi eliminado 💀";
+
+            }
+
+        }
+
+
+        // ==========================================
+        // PONTOS
+        // ==========================================
+
+        function atualizarMeusPontos(pontos) {
+
+            document
+                .getElementById(
+                    "meus-pontos"
+                )
+                .textContent =
+                    pontos;
+
+        }
+
+
+        // ==========================================
+        // RANKING
+        // ==========================================
+
+        function abrirRanking(
+            ranking,
+            rodada,
+            final = false
+        ) {
+
+            if (!ranking) {
+                return;
+            }
+
+            const overlay =
+                document.getElementById(
+                    "ranking-overlay"
+                );
+
+            const titulo =
+                document.getElementById(
+                    "ranking-titulo"
+                );
+
+            const subtitulo =
+                document.getElementById(
+                    "ranking-subtitulo"
+                );
+
+            const lista =
+                document.getElementById(
+                    "ranking-lista"
+                );
+
+            const botao =
+                document.getElementById(
+                    "btn-fechar-ranking"
+                );
+
+            lista.innerHTML = "";
+
+            if (final) {
+
+                titulo.textContent =
+                    "🏆 ranking final";
+
+                subtitulo.textContent =
+                    "fim da partida";
+
+                botao.textContent =
+                    "fechar";
+
+            } else {
+
+                titulo.textContent =
+                    "📊 ranking da rodada";
+
+                subtitulo.textContent =
+                    "resultado da rodada " +
+                    rodada;
+
+                botao.textContent =
+                    "aguardar próxima rodada";
+
+            }
+
+
+            ranking.forEach(
+                jogador => {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+                    item.className =
+                        "ranking-item";
+
+                    if (
+                        jogador.posicao === 1
+                    ) {
+
+                        item.classList.add(
+                            "primeiro"
+                        );
+
+                    }
+
+                    let medalha = "";
+
+                    if (
+                        jogador.posicao === 1
+                    ) {
+
+                        medalha = "🥇";
+
+                    } else if (
+                        jogador.posicao === 2
+                    ) {
+
+                        medalha = "🥈";
+
+                    } else if (
+                        jogador.posicao === 3
+                    ) {
+
+                        medalha = "🥉";
+
+                    } else {
+
+                        medalha =
+                            jogador.posicao + "º";
+
+                    }
+
+
+                    item.innerHTML = `
+
+                        <div class="ranking-posicao">
+                            ${medalha}
+                        </div>
+
+                        <div>
+
+                            <div class="ranking-nome">
+
+                                ${escapeHtml(
+                                    jogador.nome
+                                )}
+
+                                ${
+                                    jogador.eliminado
+                                    ? " 💀"
+                                    : ""
+                                }
+
+                            </div>
+
+                            <div class="ranking-detalhes">
+
+                                ❤️ ${jogador.vidas}
+
+                                &nbsp; • &nbsp;
+
+                                ${jogador.pontos} ponto(s)
+
+                            </div>
+
+                        </div>
+
+                        <div class="ranking-pontos">
+                            ⭐ ${jogador.pontos}
+                        </div>
+
+                    `;
+
+                    lista.appendChild(item);
+
+                }
+            );
+
+            overlay.classList.add(
+                "ativo"
+            );
+
+        }
+
+
+        function fecharRanking() {
+
+            document
+                .getElementById(
+                    "ranking-overlay"
+                )
+                .classList.remove(
+                    "ativo"
+                );
+
+        }
+
+
+        // ==========================================
+        // FIM DA RODADA
+        // ==========================================
+
+        socket.on(
+            "rodada_terminou",
+            data => {
+
+                campoCarro.disabled =
+                    true;
+
+                botaoCarro.disabled =
+                    true;
+
+                campoCarro.placeholder =
+                    "próxima rodada...";
+
+                abrirRanking(
+                    data.ranking,
+                    data.rodada,
+                    false
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // FIM DO JOGO
+        // ==========================================
+
+        socket.on(
+            "jogo_terminou",
+            data => {
+
+                jogoIniciadoLocal =
+                    false;
+
+                emIntervalo =
+                    false;
+
+                esconderIntervalo();
+
+                campoCarro.disabled =
+                    true;
+
+                botaoCarro.disabled =
+                    true;
+
+                document
+                    .getElementById(
+                        "estado-partida"
+                    )
+                    .textContent =
+                        "🏁 partida encerrada";
+
+                if (botaoComecar) {
+
+                    botaoComecar.disabled =
+                        false;
+
+                }
+
+                atualizarChatEstado();
+
+                abrirRanking(
+                    data.ranking,
+                    data.rodada,
+                    true
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // CHAT
+        // ==========================================
+
+        function enviarMensagem() {
+
+            if (
+                modoSolo ||
+                campoChat.disabled
+            ) {
+                return;
+            }
+
+            const mensagem =
+                campoChat.value.trim();
+
+            if (
+                !mensagem ||
+                !socket.connected
+            ) {
+                return;
+            }
+
+            socket.emit(
+                "mensagem_chat",
+                {
+                    mensagem:
+                        mensagem
+                }
+            );
+
+            campoChat.value = "";
+            campoChat.focus();
+
+        }
+
+
+        if (botaoChat) {
+
+            botaoChat.addEventListener(
+                "click",
+                enviarMensagem
+            );
+
+        }
+
+
+        if (campoChat) {
+
+            campoChat.addEventListener(
+                "keydown",
+                e => {
+
+                    if (
+                        e.key === "Enter"
+                    ) {
+
+                        enviarMensagem();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // MENSAGEM
+        // ==========================================
+
+        socket.on(
+            "mensagem_chat",
+            data => {
+
+                if (modoSolo) {
+                    return;
+                }
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+                div.className =
+                    "chat-msg";
+
+                div.innerHTML = `
+
+                    <span class="chat-nome">
+                        ${escapeHtml(data.nome)}:
+                    </span>
+
+                    ${escapeHtml(data.mensagem)}
+
+                `;
+
+                document
+                    .getElementById(
+                        "chat"
+                    )
+                    .appendChild(div);
+
+                const chat =
+                    document.getElementById(
+                        "chat"
+                    );
+
+                chat.scrollTop =
+                    chat.scrollHeight;
+
+            }
+        );
+
+
+        // ==========================================
+        // CHAT BLOQUEADO
+        // ==========================================
+
+        socket.on(
+            "chat_bloqueado",
+            data => {
+
+                if (modoSolo) {
+                    return;
+                }
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+                div.className =
+                    "chat-msg chat-bloqueado";
+
+                div.textContent =
+                    "🚫 " +
+                    data.mensagem;
+
+                document
+                    .getElementById(
+                        "chat"
+                    )
+                    .appendChild(div);
+
+            }
+        );
+
+
+        // ==========================================
+        // AVISO
+        // ==========================================
+
+        function mostrarAviso(texto) {
+
+            const aviso =
+                document.getElementById(
+                    "aviso"
+                );
+
+            aviso.textContent =
+                texto;
+
+            aviso.style.display =
+                texto
+                ? "block"
+                : "none";
+
+            if (texto) {
+
+                setTimeout(
+                    () => {
+
+                        aviso.style.display =
+                            "none";
+
+                    },
+                    3500
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // SEGURANÇA HTML
+        // ==========================================
+
+        function escapeHtml(text) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.textContent =
+                String(text);
+
+            return div.innerHTML;
+
+        }
+
+
+        // ==========================================
+        // ESTADO INICIAL DO CHAT
+        // ==========================================
+
+        atualizarChatEstado();
+
+    </script>
+
+</body>
+
+</html>
