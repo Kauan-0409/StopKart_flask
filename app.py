@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
+
 from flask_socketio import SocketIO, join_room, emit, disconnect
+
 import random
 import string
 import json
 import unicodedata
 import re
 import time
+
 
 app = Flask(__name__)
 
@@ -17,18 +20,25 @@ socketio = SocketIO(
     cors_allowed_origins="*"
 )
 
+
 # ==========================================
 # CONFIGURAÇÕES PADRÃO
 # ==========================================
 
 TEMPO_PADRAO = 120
 INTERVALO_RODADAS = 120
+
 MAX_JOGADORES_PADRAO = 2
+
 RODADAS_PADRAO = 6
+
 VIDAS_INICIAIS = 3
 
 MIN_RODADAS = 1
 MAX_RODADAS = 50
+
+# Máximo de vezes que a mesma letra pode aparecer
+MAX_REPETICOES_LETRA = 2
 
 LETRAS = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -42,6 +52,7 @@ with open("cars.json", "r", encoding="utf-8") as f:
 
 
 def normalizar_carro(nome):
+
     nome = unicodedata.normalize(
         "NFD",
         str(nome).strip().lower()
@@ -52,7 +63,11 @@ def normalizar_carro(nome):
         if unicodedata.category(c) != "Mn"
     )
 
-    return re.sub(r"[^a-z0-9]", "", nome)
+    return re.sub(
+        r"[^a-z0-9]",
+        "",
+        nome
+    )
 
 
 carros_normalizados = {
@@ -110,7 +125,10 @@ def estado_jogadores(sala):
             "vidas": vidas,
             "eliminado": vidas <= 0,
             "host": nome == sala["host"],
-            "pontos": sala["pontos"].get(nome, 0)
+            "pontos": sala["pontos"].get(
+                nome,
+                0
+            )
         })
 
     return jogadores
@@ -207,6 +225,7 @@ def atualizar_lobby(codigo):
             "em_intervalo": sala["em_intervalo"],
             "intervalo_habilitado": sala["intervalo_habilitado"],
             "intervalo_duracao": INTERVALO_RODADAS,
+            "ultimo_sobrevivente_vencedor": sala["ultimo_sobrevivente_vencedor"],
             "modo": sala["modo"]
         },
         to=codigo
@@ -234,7 +253,11 @@ def dados_sala(codigo):
         "fim_intervalo": sala["fim_intervalo"],
         "modo": sala["modo"],
         "intervalo_habilitado": sala["intervalo_habilitado"],
-        "intervalo_duracao": INTERVALO_RODADAS
+        "intervalo_duracao": INTERVALO_RODADAS,
+        "ultimo_sobrevivente_vencedor": sala["ultimo_sobrevivente_vencedor"],
+        "aguardando_reinicio": sala["aguardando_reinicio"],
+        "votos_reiniciar": len(sala["votos_reiniciar"]),
+        "total_votos_reiniciar": len(sala["jogadores"])
     }
 
 
@@ -245,7 +268,21 @@ def dados_sala(codigo):
 @app.route("/")
 def inicio():
 
-    return render_template("index.html")
+    return render_template(
+        "index.html"
+    )
+
+
+# ==========================================
+# TUTORIAL
+# ==========================================
+
+@app.route("/tutorial")
+def tutorial():
+
+    return render_template(
+        "tutorial.html"
+    )
 
 
 # ==========================================
@@ -290,9 +327,22 @@ def criar_sala():
         ) == "1"
     )
 
-    # Solo nunca usa intervalo
+    # ======================================
+    # ÚLTIMO SOBREVIVENTE
+    # ======================================
+
+    ultimo_sobrevivente_vencedor = (
+        request.form.get(
+            "ultimo_sobrevivente_vencedor",
+            "0"
+        ) == "1"
+    )
+
+    # Solo nunca usa essa regra
+
     if modo == "solo":
         intervalo_habilitado = False
+        ultimo_sobrevivente_vencedor = False
 
     # ======================================
     # TEMPO
@@ -455,6 +505,10 @@ def criar_sala():
         "timer_ativo":
             False,
 
+        # identificador da partida atual, usado para invalidar timers antigos
+        "partida_id":
+            0,
+
         "encerrando_rodada":
             False,
 
@@ -469,7 +523,27 @@ def criar_sala():
             None,
 
         "intervalo_habilitado":
-            intervalo_habilitado
+            intervalo_habilitado,
+
+        "ultimo_sobrevivente_vencedor":
+            ultimo_sobrevivente_vencedor,
+
+        # ==================================
+        # HISTÓRICO DE LETRAS
+        # ==================================
+
+        "historico_letras":
+            {},
+
+        # ==================================
+        # VOTAÇÃO PARA REINICIAR
+        # ==================================
+
+        "aguardando_reinicio":
+            False,
+
+        "votos_reiniciar":
+            set()
     }
 
     return redirect(
@@ -509,7 +583,6 @@ def entrar_sala():
         )
 
     if codigo not in salas:
-
         return "sala não encontrada 😭"
 
     sala = salas[codigo]
@@ -557,7 +630,6 @@ def entrar_sala():
 def sala(codigo):
 
     if codigo not in salas:
-
         return "sala não encontrada 😭"
 
     sala_data = salas[codigo]
@@ -760,6 +832,26 @@ def entrar_sala_socket(data):
             }
         )
 
+    # ======================================
+    # SINCRONIZAÇÃO DA VOTAÇÃO
+    # ======================================
+
+    if sala["aguardando_reinicio"]:
+
+        emit(
+            "votacao_reinicio",
+            {
+                "votos":
+                    len(sala["votos_reiniciar"]),
+
+                "total":
+                    len(sala["jogadores"]),
+
+                "votantes":
+                    list(sala["votos_reiniciar"])
+            }
+        )
+
 
 # ==========================================
 # JOGADOR ATUAL
@@ -786,6 +878,175 @@ def jogador_atual():
         nome,
         salas[codigo]
     )
+
+
+# ==========================================
+# REMOVER JOGADOR DA SALA
+# ==========================================
+
+def remover_jogador_da_sala(sala, nome):
+
+    if nome in sala["jogadores"]:
+
+        sala["jogadores"].remove(
+            nome
+        )
+
+    sala["vidas"].pop(
+        nome,
+        None
+    )
+
+    sala["pontos"].pop(
+        nome,
+        None
+    )
+
+    sala["respostas_validas"].pop(
+        nome,
+        None
+    )
+
+    sala["responderam"].discard(
+        nome
+    )
+
+    sala["votos_reiniciar"].discard(
+        nome
+    )
+
+
+# ==========================================
+# RESETAR PARTIDA
+# ==========================================
+
+def resetar_partida(sala):
+
+    sala["partida_id"] = sala.get("partida_id", 0) + 1
+
+    sala["jogo_iniciado"] = True
+
+    sala["rodada"] = 1
+
+    sala["carros_usados"] = []
+
+    sala["responderam"] = set()
+
+    sala["encerrando_rodada"] = False
+
+    sala["em_intervalo"] = False
+
+    sala["fim_intervalo"] = None
+
+    sala["fim_rodada"] = None
+
+    sala["timer_ativo"] = False
+
+    # ======================================
+    # HISTÓRICO DE LETRAS
+    # ======================================
+
+    sala["historico_letras"] = {}
+
+    # ======================================
+    # VOTAÇÃO
+    # ======================================
+
+    sala["aguardando_reinicio"] = False
+
+    sala["votos_reiniciar"] = set()
+
+    # ======================================
+    # RESET DOS JOGADORES
+    # ======================================
+
+    for jogador in sala["jogadores"]:
+
+        sala["vidas"][jogador] = VIDAS_INICIAIS
+
+        sala["pontos"][jogador] = 0
+
+        sala["respostas_validas"][jogador] = 0
+
+
+# ==========================================
+# ELIMINAÇÃO NO MODO SOLO
+# ==========================================
+
+def eliminar_solo(codigo, nome):
+
+    if codigo not in salas:
+        return
+
+    sala = salas[codigo]
+
+    if sala["modo"] != "solo":
+        return
+
+    # ======================================
+    # ENCERRA IMEDIATAMENTE A PARTIDA
+    # ======================================
+
+    sala["jogo_iniciado"] = False
+
+    sala["fim_rodada"] = None
+
+    sala["fim_intervalo"] = None
+
+    sala["letra"] = None
+
+    sala["timer_ativo"] = False
+
+    sala["encerrando_rodada"] = False
+
+    sala["em_intervalo"] = False
+
+    # ======================================
+    # PROCURA O SOCKET DO JOGADOR
+    # ======================================
+
+    sid_jogador = None
+
+    for sid, conexao in list(
+        conexoes.items()
+    ):
+
+        if (
+            conexao.get("codigo") == codigo
+            and conexao.get("nome") == nome
+        ):
+
+            sid_jogador = sid
+
+            break
+
+    # ======================================
+    # RANKING FINAL DO SOLO
+    # ======================================
+
+    ranking = gerar_ranking(
+        sala
+    )
+
+    # ======================================
+    # AVISA O JOGADOR
+    # ======================================
+
+    if sid_jogador:
+
+        socketio.emit(
+            "solo_eliminado",
+            {
+                "mensagem":
+                    "você perdeu todas as vidas!",
+
+                "ranking":
+                    ranking
+            },
+            to=sid_jogador
+        )
+
+    atualizar_lobby(codigo)
 
 
 # ==========================================
@@ -828,10 +1089,16 @@ def comecar_jogo():
     # SALA PRECISA ESTAR CHEIA
     # ======================================
 
-    quantidade_jogadores = len(sala["jogadores"])
-    max_jogadores = sala["max_jogadores"]
+    quantidade_jogadores = len(
+        sala["jogadores"]
+    )
+
+    max_jogadores = sala[
+        "max_jogadores"
+    ]
 
     if quantidade_jogadores < max_jogadores:
+
         emit(
             "erro_socket",
             {
@@ -840,37 +1107,26 @@ def comecar_jogo():
                     f"({quantidade_jogadores}/{max_jogadores})"
             }
         )
+
         return
+
+    # ======================================
+    # CONFIGURAÇÃO DAS LETRAS
+    # ======================================
+    #
+    # A configuração pode exigir mais rodadas do que
+    # as letras disponíveis conseguem suportar com no
+    # máximo 2 aparições por letra. Nesse caso, a partida
+    # continua normalmente e o sorteio volta a permitir
+    # letras já usadas, ultrapassando o limite de 2.
+    # O aviso é mostrado no index antes da criação da sala.
+    # ======================================
 
     # ======================================
     # RESET DA PARTIDA
     # ======================================
 
-    sala["jogo_iniciado"] = True
-
-    sala["rodada"] = 1
-
-    sala["carros_usados"] = []
-
-    sala["responderam"] = set()
-
-    sala["encerrando_rodada"] = False
-
-    sala["em_intervalo"] = False
-
-    sala["fim_intervalo"] = None
-
-    sala["fim_rodada"] = None
-
-    sala["timer_ativo"] = False
-
-    for jogador in sala["jogadores"]:
-
-        sala["vidas"][jogador] = VIDAS_INICIAIS
-
-        sala["pontos"][jogador] = 0
-
-        sala["respostas_validas"][jogador] = 0
+    resetar_partida(sala)
 
     # ======================================
     # PRIMEIRA RODADA
@@ -879,97 +1135,504 @@ def comecar_jogo():
 
     iniciar_rodada(codigo)
 
+
+# ==========================================
+# EXPULSAR JOGADOR
+# ==========================================
+
 @socketio.on("expulsar_jogador")
 def expulsar_jogador(data):
+
     codigo, nome, sala = jogador_atual()
 
     if not sala:
-        emit("erro_socket", {
-            "mensagem": "conecte-se à sala primeiro"
-        })
-        return
 
-    # somente o host pode expulsar
-    if nome != sala["host"]:
-        emit("erro_socket", {
-            "mensagem": "somente o host pode expulsar jogadores"
-        })
-        return
-
-    jogador_expulso = str(data.get("nome", "")).strip()
-
-    if not jogador_expulso:
-        emit("erro_socket", {
-            "mensagem": "jogador inválido"
-        })
-        return
-
-    # o host não pode se expulsar
-    if jogador_expulso == sala["host"]:
-        emit("erro_socket", {
-            "mensagem": "o host não pode ser expulso"
-        })
-        return
-
-    # verifica se o jogador realmente está na sala
-    if jogador_expulso not in sala["jogadores"]:
-        emit("erro_socket", {
-            "mensagem": "esse jogador não está na sala"
-        })
-        return
-
-    # remove o jogador da sala
-    sala["jogadores"].remove(jogador_expulso)
-
-    # limpa os dados dele
-    sala["vidas"].pop(jogador_expulso, None)
-
-    # procura a conexão/socket do jogador expulso
-    sid_expulso = None
-
-    for sid, conexao in list(conexoes.items()):
-        if (
-            conexao.get("codigo") == codigo
-            and conexao.get("nome") == jogador_expulso
-        ):
-            sid_expulso = sid
-            break
-
-    # avisa o jogador antes de desconectar
-    if sid_expulso:
-        socketio.emit(
-            "voce_foi_expulso",
+        emit(
+            "erro_socket",
             {
-                "mensagem": "você foi expulso da sala pelo host."
-            },
-            to=sid_expulso
+                "mensagem":
+                    "conecte-se à sala primeiro"
+            }
         )
 
-        # remove a conexão
-        conexoes.pop(sid_expulso, None)
+        return
 
-        # tira o jogador da room do Socket.IO
-        try:
-            from flask_socketio import leave_room
-            socketio.server.leave_room(
-                sid_expulso,
-                codigo,
-                namespace="/"
-            )
-        except Exception:
-            pass
+    # ======================================
+    # SOMENTE O HOST PODE EXPULSAR
+    # ======================================
 
-    # avisa os outros jogadores
+    if nome != sala["host"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "somente o host pode expulsar jogadores"
+            }
+        )
+
+        return
+
+    # ======================================
+    # SÓ PODE EXPULSAR NO LOBBY
+    # ======================================
+
+    if sala["jogo_iniciado"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "não é possível expulsar jogadores durante a partida"
+            }
+        )
+
+        return
+
+    jogador_expulso = str(
+        data.get(
+            "nome",
+            ""
+        )
+    ).strip()
+
+    # ======================================
+    # VALIDAÇÕES
+    # ======================================
+
+    if not jogador_expulso:
+        return
+
+    if jogador_expulso == nome:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "você não pode expulsar a si mesmo"
+            }
+        )
+
+        return
+
+    if jogador_expulso not in sala["jogadores"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "jogador não encontrado na sala"
+            }
+        )
+
+        return
+
+    # ======================================
+    # DESCOBRIR SID
+    # ======================================
+
+    sid_expulso = None
+
+    for sid, conexao in list(
+        conexoes.items()
+    ):
+
+        if (
+            conexao["codigo"] == codigo
+            and conexao["nome"] == jogador_expulso
+        ):
+
+            sid_expulso = sid
+
+            break
+
+    # ======================================
+    # REMOVER DO ESTADO
+    # ======================================
+
+    sala["jogadores"].remove(
+        jogador_expulso
+    )
+
+    sala["vidas"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["pontos"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["respostas_validas"].pop(
+        jogador_expulso,
+        None
+    )
+
+    sala["responderam"].discard(
+        jogador_expulso
+    )
+
+    sala["votos_reiniciar"].discard(
+        jogador_expulso
+    )
+
+    # ======================================
+    # AVISAR TODOS
+    # ======================================
+
     socketio.emit(
         "jogador_expulso",
         {
-            "nome": jogador_expulso
+            "nome":
+                jogador_expulso
         },
         to=codigo
     )
 
-    # atualiza a lista para todo mundo
+    # ======================================
+    # AVISAR O EXPULSO
+    # ======================================
+
+    if sid_expulso:
+
+        socketio.emit(
+            "voce_foi_expulso",
+            {
+                "mensagem":
+                    "você foi expulso da sala pelo host."
+            },
+            to=sid_expulso
+        )
+
+        conexoes.pop(
+            sid_expulso,
+            None
+        )
+
+        try:
+
+            disconnect(
+                sid_expulso
+            )
+
+        except Exception:
+
+            pass
+
+    # ======================================
+    # ATUALIZAR LOBBY
+    # ======================================
+
     atualizar_lobby(codigo)
+
+
+# ==========================================
+# SAIR DA SALA
+# ==========================================
+
+@socketio.on("sair_sala")
+def sair_sala():
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conecte-se à sala primeiro"
+            }
+        )
+
+        return
+
+    # ======================================
+    # HOST NÃO PODE SAIR SEM TRANSFERIR
+    # ======================================
+
+    if nome == sala["host"] and len(sala["jogadores"]) > 1:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "o host precisa escolher um novo host antes de sair"
+            }
+        )
+
+        return
+
+    sid = request.sid
+
+    # ======================================
+    # ÚLTIMO JOGADOR / HOST
+    # ======================================
+
+    if nome == sala["host"]:
+
+        sala["partida_id"] = sala.get("partida_id", 0) + 1
+
+        salas.pop(
+            codigo,
+            None
+        )
+
+        emit(
+            "voce_saiu_sala",
+            {
+                "mensagem":
+                    "você saiu da sala."
+            }
+        )
+
+        conexoes.pop(
+            sid,
+            None
+        )
+
+        try:
+
+            disconnect(
+                sid
+            )
+
+        except Exception:
+
+            pass
+
+        return
+
+    # ======================================
+    # JOGADOR NORMAL
+    # ======================================
+
+    remover_jogador_da_sala(
+        sala,
+        nome
+    )
+
+    socketio.emit(
+        "jogador_saiu",
+        {
+            "nome":
+                nome
+        },
+        to=codigo
+    )
+
+    emit(
+        "voce_saiu_sala",
+        {
+            "mensagem":
+                "você saiu da sala."
+        }
+    )
+
+    conexoes.pop(
+        sid,
+        None
+    )
+
+    try:
+
+        disconnect(
+            sid
+        )
+
+    except Exception:
+
+        pass
+
+    atualizar_lobby(
+        codigo
+    )
+
+
+# ==========================================
+# TRANSFERIR HOST E SAIR
+# ==========================================
+
+@socketio.on("transferir_host_e_sair")
+def transferir_host_e_sair(data):
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conecte-se à sala primeiro"
+            }
+        )
+
+        return
+
+    if nome != sala["host"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "somente o host atual pode transferir o host"
+            }
+        )
+
+        return
+
+    novo_host = str(
+        data.get(
+            "nome",
+            ""
+        )
+    ).strip()
+
+    if not novo_host or novo_host == nome:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "escolha outro jogador para ser o novo host"
+            }
+        )
+
+        return
+
+    if novo_host not in sala["jogadores"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "jogador escolhido não está na sala"
+            }
+        )
+
+        return
+
+    sid = request.sid
+
+    # O novo host assume antes do antigo host sair.
+    sala["host"] = novo_host
+
+    remover_jogador_da_sala(
+        sala,
+        nome
+    )
+
+    socketio.emit(
+        "host_transferido",
+        {
+            "novo_host":
+                novo_host,
+
+            "host_anterior":
+                nome
+        },
+        to=codigo
+    )
+
+    emit(
+        "voce_saiu_sala",
+        {
+            "mensagem":
+                "host transferido. você saiu da sala."
+        },
+        to=sid
+    )
+
+    conexoes.pop(
+        sid,
+        None
+    )
+
+    try:
+
+        disconnect(
+            sid
+        )
+
+    except Exception:
+
+        pass
+
+    atualizar_lobby(
+        codigo
+    )
+
+
+# ==========================================
+# REINICIAR SALA PELO HOST
+# ==========================================
+
+@socketio.on("reiniciar_sala")
+def reiniciar_sala():
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conecte-se à sala primeiro"
+            }
+        )
+
+        return
+
+    # SOMENTE O HOST PODE REINICIAR A SALA
+    if nome != sala["host"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "somente o host pode reiniciar a sala"
+            }
+        )
+
+        return
+
+    # A sala continua com o mesmo código e os mesmos jogadores.
+    # Aqui voltamos o estado para o lobby, sem iniciar automaticamente.
+    sala["partida_id"] = sala.get("partida_id", 0) + 1
+    sala["jogo_iniciado"] = False
+    sala["rodada"] = 0
+    sala["letra"] = None
+    sala["carros_usados"] = []
+    sala["responderam"] = set()
+    sala["fim_rodada"] = None
+    sala["timer_ativo"] = False
+    sala["encerrando_rodada"] = False
+    sala["em_intervalo"] = False
+    sala["fim_intervalo"] = None
+    sala["historico_letras"] = {}
+    sala["aguardando_reinicio"] = False
+    sala["votos_reiniciar"] = set()
+
+    # Todos voltam ao estado inicial.
+    for jogador in sala["jogadores"]:
+
+        sala["vidas"][jogador] = VIDAS_INICIAIS
+        sala["pontos"][jogador] = 0
+        sala["respostas_validas"][jogador] = 0
+
+    dados = dados_sala(codigo)
+
+    socketio.emit(
+        "sala_reiniciada",
+        dados,
+        to=codigo
+    )
+
+    atualizar_lobby(codigo)
+
 
 # ==========================================
 # INICIAR RODADA
@@ -1000,10 +1663,37 @@ def iniciar_rodada(codigo):
     # ======================================
 
     disponiveis = [
+
         letra
+
         for letra in LETRAS
-        if letra not in sala["letras_removidas"]
+
+        if (
+            letra not in sala["letras_removidas"]
+            and sala["historico_letras"].get(
+                letra,
+                0
+            ) < MAX_REPETICOES_LETRA
+        )
     ]
+
+    # ======================================
+    # SE TODAS JÁ ATINGIRAM 2 APARIÇÕES
+    # ======================================
+
+    # Se a configuração da sala exigir mais rodadas do
+    # que a quantidade de letras permite sem repetir,
+    # usamos todas as letras disponíveis como fallback.
+    # Assim a partida não trava nem é encerrada antes da
+    # hora só por causa da configuração escolhida.
+
+    if not disponiveis:
+
+        disponiveis = [
+            letra
+            for letra in LETRAS
+            if letra not in sala["letras_removidas"]
+        ]
 
     if not disponiveis:
 
@@ -1012,16 +1702,31 @@ def iniciar_rodada(codigo):
         return
 
     # ======================================
+    # ESCOLHER LETRA
+    # ======================================
+
+    sala["letra"] = random.choice(
+        disponiveis
+    )
+
+    # ======================================
+    # REGISTRAR USO DA LETRA
+    # ======================================
+
+    sala["historico_letras"][
+        sala["letra"]
+    ] = sala["historico_letras"].get(
+        sala["letra"],
+        0
+    ) + 1
+
+    # ======================================
     # LIMPAR ESTADO DA RODADA
     # ======================================
 
     sala["em_intervalo"] = False
 
     sala["fim_intervalo"] = None
-
-    sala["letra"] = random.choice(
-        disponiveis
-    )
 
     sala["responderam"] = set()
 
@@ -1084,16 +1789,19 @@ def iniciar_rodada(codigo):
 def jogadores_pendentes(sala):
 
     return [
+
         jogador
 
         for jogador in sala["jogadores"]
 
-        if sala["vidas"].get(
-            jogador,
-            0
-        ) > 0
+        if (
+            sala["vidas"].get(
+                jogador,
+                0
+            ) > 0
 
-        and jogador not in sala["responderam"]
+            and jogador not in sala["responderam"]
+        )
     ]
 
 
@@ -1109,8 +1817,11 @@ def todos_responderam(codigo):
     sala = salas[codigo]
 
     vivos = [
+
         jogador
+
         for jogador in sala["jogadores"]
+
         if sala["vidas"].get(
             jogador,
             0
@@ -1121,7 +1832,9 @@ def todos_responderam(codigo):
         return True
 
     return all(
+
         jogador in sala["responderam"]
+
         for jogador in vivos
     )
 
@@ -1219,6 +1932,69 @@ def controlar_tempo(codigo):
 
 
 # ==========================================
+# VERIFICAR FIM POR ELIMINAÇÃO
+# ==========================================
+
+def verificar_fim_por_eliminacao(codigo):
+
+    if codigo not in salas:
+        return False
+
+    sala = salas[codigo]
+
+    if sala["modo"] != "multi":
+        return False
+
+    if not sala["jogo_iniciado"]:
+        return False
+
+    vivos = [
+        jogador
+        for jogador in sala["jogadores"]
+        if sala["vidas"].get(
+            jogador,
+            0
+        ) > 0
+    ]
+
+    # ======================================
+    # ÚLTIMO SOBREVIVENTE VENCE
+    # ======================================
+
+    if (
+        sala["ultimo_sobrevivente_vencedor"]
+        and len(vivos) == 1
+    ):
+
+        sala["fim_rodada"] = None
+
+        finalizar_jogo(
+            codigo,
+            vencedor_forcado=vivos[0]
+        )
+
+        return True
+
+    # ======================================
+    # TODOS MORRERAM
+    # ======================================
+
+    if len(vivos) == 0:
+
+        sala["fim_rodada"] = None
+
+        # Sem a regra do último sobrevivente, o vencedor
+        # será definido pelo ranking, começando pelos pontos.
+        finalizar_jogo(
+            codigo
+        )
+
+        return True
+
+    return False
+
+
+# ==========================================
 # TERMINAR RODADA
 # ==========================================
 
@@ -1258,7 +2034,39 @@ def terminar_rodada(
             sala["vidas"][jogador] -= 1
 
             if sala["vidas"][jogador] < 0:
+
                 sala["vidas"][jogador] = 0
+
+    # ======================================
+    # MULTIPLAYER: ELIMINAÇÕES
+    # ======================================
+
+    if verificar_fim_por_eliminacao(codigo):
+        return
+
+    # ======================================
+    # SOLO: MORREU
+    # ======================================
+
+    if sala["modo"] == "solo":
+
+        jogador_solo = sala[
+            "jogadores"
+        ][0]
+
+        if sala["vidas"].get(
+            jogador_solo,
+            0
+        ) <= 0:
+
+            sala["fim_rodada"] = None
+
+            eliminar_solo(
+                codigo,
+                jogador_solo
+            )
+
+            return
 
     # ======================================
     # ZERA TIMER
@@ -1269,7 +2077,8 @@ def terminar_rodada(
     socketio.emit(
         "tempo_atualizado",
         {
-            "restante": 0
+            "restante":
+                0
         },
         to=codigo
     )
@@ -1278,7 +2087,9 @@ def terminar_rodada(
     # RANKING DA RODADA
     # ======================================
 
-    ranking = gerar_ranking(sala)
+    ranking = gerar_ranking(
+        sala
+    )
 
     socketio.emit(
         "rodada_terminou",
@@ -1309,9 +2120,12 @@ def terminar_rodada(
 
     if sala["rodada"] >= sala["total_rodadas"]:
 
+        partida_id = sala.get("partida_id", 0)
+
         socketio.start_background_task(
             finalizar_depois,
-            codigo
+            codigo,
+            partida_id
         )
 
         return
@@ -1334,12 +2148,10 @@ def terminar_rodada(
 
     if sala["intervalo_habilitado"]:
 
-        # Intervalo de 2 minutos
         iniciar_intervalo(codigo)
 
     else:
 
-        # Sem intervalo
         sala["rodada"] += 1
 
         iniciar_rodada(codigo)
@@ -1483,16 +2295,27 @@ def pular_intervalo():
     if not sala["em_intervalo"]:
         return
 
-    iniciar_proxima_rodada(codigo)
+    iniciar_proxima_rodada(
+        codigo
+    )
 
 
 # ==========================================
 # FINALIZAR DEPOIS
 # ==========================================
 
-def finalizar_depois(codigo):
+def finalizar_depois(codigo, partida_id):
 
     socketio.sleep(2)
+
+    if codigo not in salas:
+        return
+
+    sala = salas[codigo]
+
+    # Se o host reiniciou a sala, esta finalização pertence à partida antiga.
+    if sala.get("partida_id", 0) != partida_id:
+        return
 
     finalizar_jogo(codigo)
 
@@ -1501,14 +2324,16 @@ def finalizar_depois(codigo):
 # FINALIZAR JOGO
 # ==========================================
 
-def finalizar_jogo(codigo):
+def finalizar_jogo(
+    codigo,
+    vencedor_forcado=None
+):
 
     if codigo not in salas:
         return
 
     sala = salas[codigo]
 
-    # Guardamos a rodada antes de finalizar
     rodada_final = sala["rodada"]
 
     sala["jogo_iniciado"] = False
@@ -1529,13 +2354,52 @@ def finalizar_jogo(codigo):
     # RANKING
     # ======================================
 
-    ranking = gerar_ranking(sala)
-
-    vencedor = (
-        ranking[0]["nome"]
-        if ranking
-        else None
+    ranking = gerar_ranking(
+        sala
     )
+
+    if vencedor_forcado:
+
+        vencedor = vencedor_forcado
+
+        # O sobrevivente fica em primeiro no ranking final.
+        ranking.sort(
+            key=lambda jogador: (
+                jogador["nome"] != vencedor_forcado,
+                -jogador["pontos"],
+                -jogador["vidas"],
+                -jogador["respostas"]
+            )
+        )
+
+        for posicao, jogador in enumerate(
+            ranking,
+            start=1
+        ):
+            jogador["posicao"] = posicao
+
+    else:
+
+        vencedor = (
+            ranking[0]["nome"]
+            if ranking
+            else None
+        )
+
+    # ======================================
+    # MULTIPLAYER
+    # PREPARAR VOTAÇÃO
+    # ======================================
+
+    if sala["modo"] == "multi":
+
+        sala["aguardando_reinicio"] = True
+
+        sala["votos_reiniciar"] = set()
+
+    # ======================================
+    # AVISAR CLIENTES
+    # ======================================
 
     socketio.emit(
         "jogo_terminou",
@@ -1553,12 +2417,243 @@ def finalizar_jogo(codigo):
                 sala["total_rodadas"],
 
             "rodada":
-                rodada_final
+                rodada_final,
+
+            "aguardando_reinicio":
+                sala["aguardando_reinicio"],
+
+            "votos_reiniciar":
+                0,
+
+            "total_votos_reiniciar":
+                len(sala["jogadores"])
         },
         to=codigo
     )
 
+    # ======================================
+    # ABRIR VOTAÇÃO NO MULTIPLAYER
+    # ======================================
+
+    if sala["modo"] == "multi":
+
+        socketio.emit(
+            "votacao_reinicio",
+            {
+                "votos":
+                    0,
+
+                "total":
+                    len(sala["jogadores"]),
+
+                "votantes":
+                    []
+            },
+            to=codigo
+        )
+
     atualizar_lobby(codigo)
+
+
+# ==========================================
+# VOTAR PARA REINICIAR MULTIPLAYER
+# ==========================================
+
+@socketio.on("votar_reiniciar")
+def votar_reiniciar():
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conexão perdida"
+            }
+        )
+
+        return
+
+    if sala["modo"] != "multi":
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "a votação só existe no multiplayer"
+            }
+        )
+
+        return
+
+    if not sala["aguardando_reinicio"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "não existe uma votação ativa"
+            }
+        )
+
+        return
+
+    # ======================================
+    # EVITAR VOTO DUPLO
+    # ======================================
+
+    if nome in sala["votos_reiniciar"]:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "você já votou para reiniciar!"
+            }
+        )
+
+        return
+
+    sala["votos_reiniciar"].add(
+        nome
+    )
+
+    votos = len(
+        sala["votos_reiniciar"]
+    )
+
+    total = len(
+        sala["jogadores"]
+    )
+
+    # ======================================
+    # ATUALIZAR TODOS
+    # ======================================
+
+    socketio.emit(
+        "votacao_reinicio",
+        {
+            "votos":
+                votos,
+
+            "total":
+                total,
+
+            "votantes":
+                list(sala["votos_reiniciar"])
+        },
+        to=codigo
+    )
+
+    # ======================================
+    # TODOS VOTARAM
+    # ======================================
+
+    if votos >= total:
+
+        sala["aguardando_reinicio"] = False
+
+        sala["votos_reiniciar"] = set()
+
+        socketio.emit(
+            "reinicio_aprovado",
+            {
+                "mensagem":
+                    "todos votaram! reiniciando a partida..."
+            },
+            to=codigo
+        )
+
+        socketio.sleep(2)
+
+        if codigo not in salas:
+            return
+
+        sala = salas[codigo]
+
+        resetar_partida(
+            sala
+        )
+
+        iniciar_rodada(
+            codigo
+        )
+
+    else:
+
+        atualizar_lobby(codigo)
+
+
+# ==========================================
+# REINICIAR SOLO
+# ==========================================
+
+@socketio.on("reiniciar_solo")
+def reiniciar_solo():
+
+    codigo, nome, sala = jogador_atual()
+
+    if not sala:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "conexão perdida"
+            }
+        )
+
+        return
+
+    if sala["modo"] != "solo":
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "essa função só existe no modo solo"
+            }
+        )
+
+        return
+
+    if sala["vidas"].get(
+        nome,
+        0
+    ) > 0:
+
+        emit(
+            "erro_socket",
+            {
+                "mensagem":
+                    "você ainda não foi eliminado"
+            }
+        )
+
+        return
+
+    # ======================================
+    # RESET
+    # ======================================
+
+    resetar_partida(
+        sala
+    )
+
+    socketio.emit(
+        "solo_reiniciado",
+        {
+            "mensagem":
+                "nova partida iniciada!"
+        },
+        to=codigo
+    )
+
+    iniciar_rodada(
+        codigo
+    )
 
 
 # ==========================================
@@ -1681,7 +2776,9 @@ def enviar_carro(data):
 
         return
 
-    n = normalizar_carro(carro)
+    n = normalizar_carro(
+        carro
+    )
 
     # ======================================
     # ERRO
@@ -1692,6 +2789,7 @@ def enviar_carro(data):
         sala["vidas"][nome] -= 1
 
         if sala["vidas"][nome] < 0:
+
             sala["vidas"][nome] = 0
 
         emit(
@@ -1712,6 +2810,29 @@ def enviar_carro(data):
         )
 
         atualizar_lobby(codigo)
+
+        # ==================================
+        # MULTIPLAYER: ELIMINAÇÃO
+        # ==================================
+
+        if sala["modo"] == "multi":
+
+            if verificar_fim_por_eliminacao(codigo):
+                return
+
+        # ==================================
+        # SOLO MORREU
+        # ==================================
+
+        if (
+            sala["modo"] == "solo"
+            and sala["vidas"][nome] <= 0
+        ):
+
+            eliminar_solo(
+                codigo,
+                nome
+            )
 
     # ======================================
     # CARRO REPETIDO
@@ -1760,9 +2881,13 @@ def enviar_carro(data):
     # CARRO ACEITO
     # ======================================
 
-    sala["carros_usados"].append(n)
+    sala["carros_usados"].append(
+        n
+    )
 
-    sala["responderam"].add(nome)
+    sala["responderam"].add(
+        nome
+    )
 
     # ======================================
     # PONTOS
@@ -1845,7 +2970,10 @@ def mensagem_chat(data):
     # CHAT BLOQUEADO DURANTE A RODADA
     # ======================================
 
-    if sala["jogo_iniciado"] and not sala["em_intervalo"]:
+    if (
+        sala["jogo_iniciado"]
+        and not sala["em_intervalo"]
+    ):
 
         emit(
             "chat_bloqueado",
@@ -1885,173 +3013,6 @@ def mensagem_chat(data):
 
 
 # ==========================================
-# EXPULSAR JOGADOR
-# ==========================================
-
-@socketio.on("expulsar_jogador")
-def expulsar_jogador(data):
-
-    codigo, nome, sala = jogador_atual()
-
-    if not sala:
-        emit(
-            "erro_socket",
-            {
-                "mensagem":
-                    "conecte-se à sala primeiro"
-            }
-        )
-        return
-
-    # ======================================
-    # SOMENTE O HOST PODE EXPULSAR
-    # ======================================
-
-    if nome != sala["host"]:
-        emit(
-            "erro_socket",
-            {
-                "mensagem":
-                    "somente o host pode expulsar jogadores"
-            }
-        )
-        return
-
-    # ======================================
-    # SÓ PODE EXPULSAR NO LOBBY
-    # ======================================
-
-    if sala["jogo_iniciado"]:
-        emit(
-            "erro_socket",
-            {
-                "mensagem":
-                    "não é possível expulsar jogadores durante a partida"
-            }
-        )
-        return
-
-    jogador_expulso = str(
-        data.get(
-            "nome",
-            ""
-        )
-    ).strip()
-
-    # ======================================
-    # VALIDAÇÕES
-    # ======================================
-
-    if not jogador_expulso:
-        return
-
-    if jogador_expulso == nome:
-        emit(
-            "erro_socket",
-            {
-                "mensagem":
-                    "você não pode expulsar a si mesmo"
-            }
-        )
-        return
-
-    if jogador_expulso not in sala["jogadores"]:
-        emit(
-            "erro_socket",
-            {
-                "mensagem":
-                    "jogador não encontrado na sala"
-            }
-        )
-        return
-
-    # ======================================
-    # DESCOBRIR SID DO JOGADOR
-    # ======================================
-
-    sid_expulso = None
-
-    for sid, conexao in list(conexoes.items()):
-        if (
-            conexao["codigo"] == codigo
-            and conexao["nome"] == jogador_expulso
-        ):
-            sid_expulso = sid
-            break
-
-    # ======================================
-    # REMOVER DO ESTADO DA SALA
-    # ======================================
-
-    sala["jogadores"].remove(jogador_expulso)
-
-    sala["vidas"].pop(
-        jogador_expulso,
-        None
-    )
-
-    sala["pontos"].pop(
-        jogador_expulso,
-        None
-    )
-
-    sala["respostas_validas"].pop(
-        jogador_expulso,
-        None
-    )
-
-    sala["responderam"].discard(
-        jogador_expulso
-    )
-
-    # ======================================
-    # AVISAR TODOS OS JOGADORES
-    # ======================================
-
-    socketio.emit(
-        "jogador_expulso",
-        {
-            "nome": jogador_expulso
-        },
-        to=codigo
-    )
-
-    # ======================================
-    # AVISAR O EXPULSO
-    # ======================================
-
-    if sid_expulso:
-
-        socketio.emit(
-            "voce_foi_expulso",
-            {
-                "mensagem":
-                    "você foi expulso da sala pelo host."
-            },
-            to=sid_expulso
-        )
-
-        # Remove a conexão
-        conexoes.pop(
-            sid_expulso,
-            None
-        )
-
-        # Desconecta o socket
-        try:
-            disconnect(
-                sid_expulso
-            )
-        except Exception:
-            pass
-
-    # ======================================
-    # ATUALIZAR LOBBY
-    # ======================================
-
-    atualizar_lobby(codigo)
-
-# ==========================================
 # DISCONNECT
 # ==========================================
 
@@ -2075,6 +3036,7 @@ def desconectado():
 # ==========================================
 
 if __name__ == "__main__":
+
     socketio.run(
         app,
         host="0.0.0.0",

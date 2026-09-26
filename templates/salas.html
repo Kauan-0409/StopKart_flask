@@ -465,6 +465,11 @@
         }
 
         .acao {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            vertical-align: top;
             padding: 13px 17px;
             border: 0;
             border-radius: 9px;
@@ -831,6 +836,196 @@
             color: #111;
         }
 
+.solo-reinicio {
+            display: none;
+            margin-top: 18px;
+        }
+
+        .solo-reinicio-mensagem {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .solo-reinicio-botoes {
+            position: relative;
+            z-index: 21;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .solo-reinicio-botoes button {
+            position: relative;
+            z-index: 22;
+            pointer-events: auto;
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-jogar-novamente {
+            background: #f2f2f2;
+            color: #111;
+        }
+
+        .btn-voltar-inicio {
+            background: #30333a;
+            color: #fff;
+        }
+
+        .votacao-reinicio {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #33363d;
+        }
+
+        .votacao-reinicio.ativa {
+            display: flex;
+        }
+
+        .btn-votar-reinicio {
+            width: 100%;
+            padding: 13px 20px;
+            border: 0;
+            border-radius: 10px;
+            background: #f2f2f2;
+            color: #111;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-votar-reinicio:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .votacao-status {
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+        }
+
+
+        /* ==========================================
+           SAIR DA SALA
+        ========================================== */
+
+        .botao-sair-menu {
+            margin-left: 0;
+            padding: 12px 16px;
+            border: 1px solid #303239;
+            border-radius: 10px;
+            background: #22242a;
+            color: #ccc;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                background .2s,
+                color .2s,
+                transform .2s;
+        }
+
+        .botao-sair-menu:hover {
+            background: #382529;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .botao-sair-menu:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal-sair-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, .68);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 2000;
+        }
+
+        .modal-sair-overlay.ativo {
+            display: flex;
+        }
+
+        .modal-sair {
+            width: min(430px, 100%);
+            padding: 26px;
+            border-radius: 15px;
+            background: #18191e;
+            border: 1px solid #303239;
+            box-shadow: 0 20px 60px rgba(0,0,0,.45);
+        }
+
+        .modal-sair h2 {
+            margin: 0 0 10px;
+            font-size: 23px;
+        }
+
+        .modal-sair p {
+            margin: 0 0 18px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .opcoes-host {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .opcao-host {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #303239;
+            border-radius: 10px;
+            background: #22242a;
+            color: #fff;
+            text-align: left;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                background .2s,
+                border-color .2s,
+                transform .2s;
+        }
+
+        .opcao-host:hover {
+            background: #2b2e35;
+            border-color: #555a66;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar-sair {
+            width: 100%;
+            margin-top: 14px;
+            padding: 12px 15px;
+            border: 0;
+            border-radius: 10px;
+            background: #30333a;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
 
         /* ==========================================
            RESPONSIVO
@@ -1114,6 +1309,15 @@
             🔊 música
         </button>
 
+
+        <button
+            id="botao-sair-sala"
+            class="botao-sair-menu"
+            type="button"
+        >
+            🚪 sair da sala
+        </button>
+
     </div>
 
 
@@ -1372,6 +1576,27 @@
                 >
                     aguardando jogadores...
                 </div>
+
+                {% endif %}
+
+
+                {% if nome == host %}
+
+                <button
+                    id="botao-reiniciar-sala"
+                    class="acao"
+                    type="button"
+                >
+
+                    <img
+                        src="{{ url_for('static', filename='icons/Rotation_Icon.svg') }}"
+                        class="icone"
+                        alt=""
+                    >
+
+                    reiniciar sala
+
+                </button>
 
                 {% endif %}
 
@@ -1640,6 +1865,43 @@
 
 
     <!-- ==========================================
+         MODAL SAIR DA SALA
+    ========================================== -->
+
+    <div
+        id="modal-sair-sala"
+        class="modal-sair-overlay"
+    >
+
+        <div class="modal-sair">
+
+            <h2>
+                👑 escolher novo host
+            </h2>
+
+            <p>
+                você é o host. antes de sair, escolha qual jogador vai assumir o host da sala.
+            </p>
+
+            <div
+                id="opcoes-novo-host"
+                class="opcoes-host"
+            ></div>
+
+            <button
+                id="btn-cancelar-sair"
+                class="btn-cancelar-sair"
+                type="button"
+            >
+                cancelar
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
          RANKING
     ========================================== -->
 
@@ -1678,6 +1940,64 @@
                 id="ranking-lista"
                 class="ranking-lista"
             ></div>
+
+
+            <div
+                id="solo-reinicio"
+                class="solo-reinicio"
+            >
+
+                <div
+                    id="solo-reinicio-mensagem"
+                    class="solo-reinicio-mensagem"
+                >
+                    você perdeu todas as vidas. quer jogar novamente?
+                </div>
+
+                <div class="solo-reinicio-botoes">
+
+                    <button
+                        id="btn-jogar-novamente"
+                        class="btn-jogar-novamente"
+                        type="button"
+                    >
+                        🔄 jogar novamente
+                    </button>
+
+                    <button
+                        id="btn-voltar-inicio"
+                        class="btn-voltar-inicio"
+                        type="button"
+                    >
+                        🏠 voltar ao início
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="votacao-reinicio"
+                class="votacao-reinicio"
+            >
+
+                <div
+                    id="votacao-status"
+                    class="votacao-status"
+                >
+                    0/0 jogadores votaram
+                </div>
+
+                <button
+                    id="btn-votar-reinicio"
+                    class="btn-votar-reinicio"
+                    type="button"
+                >
+                    🔄 votar para reiniciar
+                </button>
+
+            </div>
 
 
             <div class="ranking-botoes">
@@ -1995,6 +2315,61 @@
                 "botao-comecar"
             );
 
+        const botaoReiniciarSala =
+            document.getElementById(
+                "botao-reiniciar-sala"
+            );
+
+        const votacaoReinicio =
+            document.getElementById(
+                "votacao-reinicio"
+            );
+
+        const botaoVotarReinicio =
+            document.getElementById(
+                "btn-votar-reinicio"
+            );
+
+        const soloReinicio =
+            document.getElementById(
+                "solo-reinicio"
+            );
+
+        const botaoJogarNovamente =
+            document.getElementById(
+                "btn-jogar-novamente"
+            );
+
+        const botaoVoltarInicio =
+            document.getElementById(
+                "btn-voltar-inicio"
+            );
+
+        const votacaoStatus =
+            document.getElementById(
+                "votacao-status"
+            );
+
+        const botaoSairSala =
+            document.getElementById(
+                "botao-sair-sala"
+            );
+
+        const modalSairSala =
+            document.getElementById(
+                "modal-sair-sala"
+            );
+
+        const opcoesNovoHost =
+            document.getElementById(
+                "opcoes-novo-host"
+            );
+
+        const btnCancelarSair =
+            document.getElementById(
+                "btn-cancelar-sair"
+            );
+
         const avisoInicio =
             document.getElementById(
                 "aviso-inicio"
@@ -2042,6 +2417,10 @@
             document.querySelectorAll(
                 "#lista-jogadores > li"
             ).length;
+
+        let jogadoresAtuais = [];
+
+        let processandoSaida = false;
 
 
         // ==========================================
@@ -2566,10 +2945,43 @@
             "erro_socket",
             data => {
 
+                if (botaoJogarNovamente) {
+                    botaoJogarNovamente.disabled = false;
+                    botaoJogarNovamente.textContent =
+                        "🔄 jogar novamente";
+                }
+
+                if (botaoVoltarInicio) {
+                    botaoVoltarInicio.disabled = false;
+                }
+
                 mostrarAviso(
                     "❌ " +
                     data.mensagem
                 );
+
+
+                if (
+                    botaoReiniciarSala
+                ) {
+
+                    botaoReiniciarSala.disabled =
+                        false;
+
+                }
+
+
+                if (
+                    botaoSairSala
+                ) {
+
+                    botaoSairSala.disabled =
+                        false;
+
+                }
+
+                processandoSaida = false;
+                fecharModalSair();
 
 
                 if (
@@ -2651,6 +3063,9 @@
 
             quantidadeJogadoresAtual =
                 data.jogadores.length;
+
+            jogadoresAtuais =
+                data.jogadores.slice();
 
 
             data.jogadores.forEach(
@@ -3066,6 +3481,344 @@
             );
 
         }
+
+
+        // ==========================================
+        // REINICIAR SALA
+        // ==========================================
+
+        if (botaoReiniciarSala) {
+
+            botaoReiniciarSala.addEventListener(
+                "click",
+                () => {
+
+                    if (!socket.connected) {
+
+                        mostrarAviso(
+                            "aguardando conexão..."
+                        );
+
+                        return;
+
+                    }
+
+                    const confirmar = confirm(
+                        "reiniciar a sala? todos os jogadores voltarão para 3 vidas e 0 pontos."
+                    );
+
+                    if (!confirmar) {
+                        return;
+                    }
+
+                    botaoReiniciarSala.disabled = true;
+
+                    socket.emit(
+                        "reiniciar_sala"
+                    );
+
+                }
+            );
+
+        }
+
+
+        socket.on(
+            "sala_reiniciada",
+            data => {
+
+                jogoIniciadoLocal = false;
+                emIntervalo = false;
+                jaRespondi = false;
+
+                fecharRanking();
+                esconderIntervalo();
+                esconderVotacaoReinicio();
+
+                atualizarJogadores(data);
+
+                document
+                    .getElementById("estado-partida")
+                    .textContent =
+                        "esperando o host iniciar...";
+
+                document
+                    .getElementById("letra")
+                    .textContent = "?";
+
+                document
+                    .getElementById("letra")
+                    .style.display = "none";
+
+                document
+                    .getElementById("rodada")
+                    .textContent =
+                        "0/" + data.total_rodadas;
+
+                document
+                    .getElementById("tempo")
+                    .textContent =
+                        formatarTempo(data.tempo || 0);
+
+                document
+                    .getElementById("tempo")
+                    .style.color = "white";
+
+                campoCarro.value = "";
+                campoCarro.disabled = true;
+                botaoCarro.disabled = true;
+                campoCarro.placeholder =
+                    "comece o jogo...";
+
+                document
+                    .getElementById("carros-enviados")
+                    .innerHTML = "";
+
+                if (botaoComecar && souHost) {
+
+                    botaoComecar.style.display = "inline-flex";
+                    botaoComecar.disabled = false;
+
+                    if (avisoInicio) {
+                        avisoInicio.style.display = "block";
+                    }
+
+                    atualizarBotaoComecar(
+                        data.jogadores.length
+                    );
+
+                }
+
+                if (botaoReiniciarSala) {
+                    botaoReiniciarSala.disabled = false;
+                }
+
+                atualizarChatEstado();
+                tocarLobby();
+                mostrarAviso(
+                    "🔄 sala reiniciada!"
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // SAIR DA SALA
+        // ==========================================
+
+        function fecharModalSair() {
+
+            if (modalSairSala) {
+
+                modalSairSala.classList.remove(
+                    "ativo"
+                );
+
+            }
+
+        }
+
+
+        function abrirModalNovoHost() {
+
+            if (!modalSairSala || !opcoesNovoHost) {
+                return;
+            }
+
+            const outrosJogadores =
+                jogadoresAtuais.filter(
+                    jogador => jogador.nome !== meuNome
+                );
+
+            if (!outrosJogadores.length) {
+
+                const confirmar = confirm(
+                    "você é o único jogador. ao sair, a sala será encerrada. continuar?"
+                );
+
+                if (confirmar) {
+                    processandoSaida = true;
+                    if (botaoSairSala) {
+                        botaoSairSala.disabled = true;
+                    }
+                    socket.emit("sair_sala");
+                }
+
+                return;
+            }
+
+            opcoesNovoHost.innerHTML = "";
+
+            outrosJogadores.forEach(
+                jogador => {
+
+                    const botao =
+                        document.createElement("button");
+
+                    botao.type = "button";
+                    botao.className = "opcao-host";
+                    botao.textContent =
+                        "👑 " + jogador.nome;
+
+                    botao.addEventListener(
+                        "click",
+                        () => {
+
+                            const confirmar = confirm(
+                                `transformar ${jogador.nome} em host e sair da sala?`
+                            );
+
+                            if (!confirmar) {
+                                return;
+                            }
+
+                            processandoSaida = true;
+                            if (botaoSairSala) {
+                                botaoSairSala.disabled = true;
+                            }
+
+                            opcoesNovoHost
+                                .querySelectorAll("button")
+                                .forEach(
+                                    item => {
+                                        item.disabled = true;
+                                    }
+                                );
+
+                            socket.emit(
+                                "transferir_host_e_sair",
+                                {
+                                    nome: jogador.nome
+                                }
+                            );
+                        }
+                    );
+
+                    opcoesNovoHost.appendChild(
+                        botao
+                    );
+
+                }
+            );
+
+            modalSairSala.classList.add(
+                "ativo"
+            );
+        }
+
+
+        if (botaoSairSala) {
+
+            botaoSairSala.addEventListener(
+                "click",
+                () => {
+
+                    if (processandoSaida) {
+                        return;
+                    }
+
+                    if (!socket.connected) {
+                        mostrarAviso(
+                            "aguardando conexão..."
+                        );
+                        return;
+                    }
+
+                    if (souHost) {
+                        abrirModalNovoHost();
+                        return;
+                    }
+
+                    const confirmar = confirm(
+                        "sair da sala?"
+                    );
+
+                    if (!confirmar) {
+                        return;
+                    }
+
+                    processandoSaida = true;
+                    botaoSairSala.disabled = true;
+
+                    socket.emit(
+                        "sair_sala"
+                    );
+                }
+            );
+
+        }
+
+
+        if (btnCancelarSair) {
+
+            btnCancelarSair.addEventListener(
+                "click",
+                fecharModalSair
+            );
+
+        }
+
+
+        if (modalSairSala) {
+
+            modalSairSala.addEventListener(
+                "click",
+                event => {
+
+                    if (event.target === modalSairSala) {
+                        fecharModalSair();
+                    }
+
+                }
+            );
+
+        }
+
+
+        socket.on(
+            "voce_saiu_sala",
+            data => {
+
+                window.location.href = "/";
+
+            }
+        );
+
+
+        socket.on(
+            "host_transferido",
+            data => {
+
+                fecharModalSair();
+
+                if (
+                    meuNome === data.host_anterior
+                ) {
+
+                    window.location.href = "/";
+                    return;
+
+                }
+
+                window.location.reload();
+
+            }
+        );
+
+
+        socket.on(
+            "jogador_saiu",
+            data => {
+
+                if (data && data.nome) {
+                    mostrarAviso(
+                        `🚪 ${data.nome} saiu da sala.`
+                    );
+                }
+
+            }
+        );
 
 
         // ==========================================
@@ -3719,14 +4472,130 @@
 
 
         // ==========================================
+        // VOTAÇÃO PARA REINICIAR
+        // ==========================================
+
+        function atualizarVotacaoReinicio(data) {
+
+            if (modoSolo || !votacaoReinicio) {
+                return;
+            }
+
+            const votos = Number(data.votos || 0);
+            const total = Number(data.total || 0);
+            const votantes = Array.isArray(data.votantes)
+                ? data.votantes
+                : [];
+
+            votacaoReinicio.classList.add(
+                "ativa"
+            );
+
+            if (votacaoStatus) {
+                votacaoStatus.textContent =
+                    `${votos}/${total} jogadores votaram para reiniciar`;
+            }
+
+            const jaVotei =
+                votantes.includes(meuNome);
+
+            if (botaoVotarReinicio) {
+
+                botaoVotarReinicio.disabled =
+                    jaVotei || votos >= total;
+
+                botaoVotarReinicio.textContent =
+                    jaVotei
+                        ? "✅ voto registrado"
+                        : "🔄 votar para reiniciar";
+
+            }
+
+        }
+
+
+        function esconderVotacaoReinicio() {
+
+            if (votacaoReinicio) {
+                votacaoReinicio.classList.remove(
+                    "ativa"
+                );
+            }
+
+            if (botaoVotarReinicio) {
+                botaoVotarReinicio.disabled = false;
+                botaoVotarReinicio.textContent =
+                    "🔄 votar para reiniciar";
+            }
+
+            if (votacaoStatus) {
+                votacaoStatus.textContent =
+                    "0/0 jogadores votaram";
+            }
+
+        }
+
+
+        if (botaoVotarReinicio) {
+
+            botaoVotarReinicio.addEventListener(
+                "click",
+                () => {
+
+                    if (!socket.connected) {
+                        mostrarAviso(
+                            "aguardando conexão..."
+                        );
+                        return;
+                    }
+
+                    botaoVotarReinicio.disabled = true;
+
+                    socket.emit(
+                        "votar_reiniciar"
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
         // RANKING
         // ==========================================
+
+        function esconderReinicioSolo() {
+
+            if (soloReinicio) {
+
+                soloReinicio.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        function mostrarReinicioSolo() {
+
+            if (soloReinicio) {
+
+                soloReinicio.style.display =
+                    "block";
+
+            }
+
+        }
+
 
         function abrirRanking(
             ranking,
             rodada,
             final = false
         ) {
+
+            esconderReinicioSolo();
 
             if (!ranking) {
                 return;
@@ -3975,12 +4844,107 @@
 
 
         // ==========================================
+        // ELIMINAÇÃO NO SOLO
+        // ==========================================
+
+        socket.on(
+            "solo_eliminado",
+            data => {
+
+                jogoIniciadoLocal =
+                    false;
+
+                emIntervalo =
+                    false;
+
+                esconderIntervalo();
+
+                campoCarro.disabled =
+                    true;
+
+                botaoCarro.disabled =
+                    true;
+
+                campoCarro.placeholder =
+                    "você foi eliminado";
+
+                document
+                    .getElementById(
+                        "estado-partida"
+                    )
+                    .textContent =
+                        "💀 você foi eliminado";
+
+                atualizarChatEstado();
+
+                abrirRanking(
+                    data.ranking,
+                    0,
+                    true
+                );
+
+                mostrarReinicioSolo();
+
+            }
+        );
+
+
+        if (botaoJogarNovamente) {
+
+            botaoJogarNovamente.addEventListener(
+                "click",
+                () => {
+
+                    if (!socket.connected) {
+                        mostrarAviso(
+                            "aguardando conexão..."
+                        );
+                        return;
+                    }
+
+                    botaoJogarNovamente.disabled =
+                        true;
+
+                    botaoVoltarInicio.disabled =
+                        true;
+
+                    botaoJogarNovamente.textContent =
+                        "🔄 iniciando...";
+
+                    socket.emit(
+                        "comecar_jogo"
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (botaoVoltarInicio) {
+
+            botaoVoltarInicio.addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "/";
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
         // FIM DO JOGO
         // ==========================================
 
         socket.on(
             "jogo_terminou",
             data => {
+
+                esconderReinicioSolo();
 
                 jogoIniciadoLocal =
                     false;
@@ -4025,6 +4989,51 @@
                     data.rodada,
                     true
                 );
+
+                if (data.aguardando_reinicio) {
+
+                    atualizarVotacaoReinicio({
+                        votos: data.votos_reiniciar || 0,
+                        total: data.total_votos_reiniciar || 0,
+                        votantes: []
+                    });
+
+                } else {
+
+                    esconderVotacaoReinicio();
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // VOTAÇÃO PARA REINICIAR
+        // ==========================================
+
+        socket.on(
+            "votacao_reinicio",
+            data => {
+                atualizarVotacaoReinicio(data);
+            }
+        );
+
+
+        socket.on(
+            "reinicio_aprovado",
+            data => {
+
+                if (votacaoStatus) {
+                    votacaoStatus.textContent =
+                        "✅ todos votaram! reiniciando a partida...";
+                }
+
+                if (botaoVotarReinicio) {
+                    botaoVotarReinicio.disabled = true;
+                    botaoVotarReinicio.textContent =
+                        "🔄 reiniciando...";
+                }
 
             }
         );
