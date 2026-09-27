@@ -674,6 +674,39 @@
         }
 
         /* =========================================
+        BOTÃO TUTORIAL
+        ========================================= */
+
+        .botao-tutorial {
+            display: block;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto 0;
+            padding: 14px;
+            border-radius: 10px;
+            background: #22242a;
+            border: 1px solid #303239;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-family: inherit;
+            font-weight: 700;
+            transition:
+                transform 0.15s,
+                background 0.2s,
+                box-shadow 0.2s,
+                border-color 0.2s;
+        }
+
+        .botao-tutorial:hover {
+            background: #30333a;
+            border-color: #777;
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 25px rgba(255,255,255,0.08);
+        }
+
+        /* =========================================
            RESPONSIVO
         ========================================= */
 
@@ -723,7 +756,7 @@
             <h1>🏎️ Stopkart</h1>
 
             <p>
-                pense rápido. escolha um carro. não repita.
+                Pense rápido. Escolha o carro certo. Não repita.
             </p>
 
         </div>
@@ -739,7 +772,7 @@
                 <h2>🎮 Criar sala</h2>
 
                 <p>
-                    configure a partida do seu jeito.
+                    Configure a partida do seu jeito
                 </p>
 
                 <form
@@ -753,10 +786,10 @@
                         type="text"
                         id="nome-criar"
                         name="nome"
-                        placeholder="seu nome"
+                        placeholder="Seu nome"
                         maxlength="20"
                         pattern="[A-Za-z0-9_]+"
-                        title="use apenas letras, números e _"
+                        title="Use apenas letras, números e _"
                         required
                     >
 
@@ -771,7 +804,7 @@
                         ========================= -->
 
                         <label>
-                            🎮 modo de jogo
+                            🎮 Modo de jogo
                         </label>
 
                         <div class="modos">
@@ -785,7 +818,7 @@
                                     checked
                                 >
 
-                                👥 multiplayer
+                                👥 Multiplayer
 
                             </label>
 
@@ -797,7 +830,7 @@
                                     value="solo"
                                 >
 
-                                👤 solo
+                                👤 Solo
 
                             </label>
 
@@ -820,7 +853,7 @@
                                 id="btn-intervalo"
                                 type="button"
                             >
-                                ⏱️ intervalo: ativado
+                                ⏱️ Intervalo: Ativado
                             </button>
 
                             <div id="info-intervalo">
@@ -847,11 +880,11 @@
                                 type="button"
                                 class="desativado"
                             >
-                                👑 último sobrevivente: desativado
+                                👑 Último sobrevivente: desativado
                             </button>
 
                             <div id="info-sobrevivente">
-                                se todos morrerem, vence quem tiver mais pontos
+                                Se todos morrerem, vence quem tiver mais pontos
                             </div>
 
                         </div>
@@ -861,7 +894,7 @@
                         ========================= -->
 
                         <label for="total-rodadas">
-                            🔄 número de rodadas
+                            🔄 Número de rodadas
                         </label>
 
                         <input
@@ -875,7 +908,7 @@
                         >
 
                         <div class="ajuda">
-                            escolha de 1 até 20 rodadas
+                            Escolha de 1 até 20 rodadas
                         </div>
 
                         <!-- =========================
@@ -883,7 +916,7 @@
                         ========================= -->
 
                         <label for="tempo">
-                            ⏱️ tempo por rodada
+                            ⏱️ Tempo por rodada
                             (segundos)
                         </label>
 
@@ -902,7 +935,7 @@
                         ========================= -->
 
                         <label for="max-jogadores">
-                            👥 máximo de jogadores
+                            👥 Máximo de jogadores
                         </label>
 
                         <input
@@ -919,7 +952,7 @@
                             class="ajuda"
                             id="ajuda-jogadores"
                         >
-                            máximo de pessoas na sala
+                            Máximo de pessoas na sala
                         </div>
 
                         <!-- =========================
@@ -927,7 +960,7 @@
                         ========================= -->
 
                         <label>
-                            🔤 letras que não serão sorteadas
+                            🔤 Letras que não serão sorteadas
                         </label>
 
                         <div class="letras">
@@ -955,13 +988,13 @@
                             class="aviso-config"
                             style="display: none;"
                         >
-                            ⚠️ o jogo vai repetir a letra várias vezes com essa configuração!
+                            ⚠️ O jogo vai repetir a letra várias vezes com essa configuração!
                         </div>
 
                     </div>
 
                     <button type="submit">
-                        criar sala
+                        Criar sala
                     </button>
 
                 </form>
@@ -977,7 +1010,7 @@
                 <h2>🚪 Entrar na sala</h2>
 
                 <p>
-                    já tem um código? entre na partida.
+                    Jogue com amigos usando o código da sala!
                 </p>
 
                 <form
@@ -1006,12 +1039,20 @@
                     >
 
                     <button type="submit">
-                        entrar na sala
+                        Entrar na sala
                     </button>
 
                 </form>
 
             </div>
+
+        
+            <a
+                href="{{ url_for('tutorial') }}"
+                class="botao-tutorial"
+            >
+                🎓 Aprender a jogar!
+            </a>
 
         </div>
 
@@ -1033,7 +1074,7 @@
     <div class="musica-bloco">
 
         <div class="musica-titulo">
-            🎵 música
+            🎵 Música
         </div>
 
         <button
@@ -1041,7 +1082,7 @@
             class="botao-musica"
             type="button"
         >
-            🔊 música ligada
+            🔊 Música ligada
         </button>
 
     </div>

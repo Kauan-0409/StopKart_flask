@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>StopKart • Tutorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#111216;color:#f2f2f2;font-family:Inter,sans-serif}
+button,input{font-family:inherit}button{border:0}header{padding:18px 28px;border-bottom:1px solid #292b31;background:#15161b}
+.header-inner{width:min(1200px,100%);margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}.header-title{display:flex;align-items:center;gap:12px;font-weight:800}.header-title span{color:#999;font-size:14px;font-weight:500}.logo{width:90px;height:auto}
+.btn-voltar{padding:11px 16px;border:1px solid #303239;border-radius:10px;background:#22242a;color:#ddd;font-weight:700;cursor:pointer}.btn-voltar:hover{background:#30333a}
+main{width:min(1100px,calc(100% - 32px));margin:28px auto 60px}.titulo-pagina h1{margin:0 0 7px;font-size:30px}.titulo-pagina p{margin:0 0 22px;color:#999}
+.jogo-grid{display:grid;grid-template-columns:1fr 360px;gap:20px}.card{background:#191a20;border:1px solid #292b31;border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.letra-card{min-height:370px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.letra-label{color:#999;font-size:14px}.letra{font-size:105px;line-height:1;font-weight:800;margin:20px 0 14px}.instrucao{color:#aaa;margin:0}
+.status{display:flex;gap:42px;margin-top:30px;padding-top:22px;border-top:1px solid #292b31}.status div{text-align:center;color:#aaa;font-size:13px}.status strong{display:block;margin-top:6px;color:#fff;font-size:17px}
+.icone{width:18px;height:18px;vertical-align:-4px;object-fit:contain}.icone-titulo{width:24px;height:24px;vertical-align:-5px;object-fit:contain}h2{margin-top:0;font-size:20px}
+.entrada{display:flex;gap:9px;margin-top:18px}#campo-carro{flex:1;min-width:0;padding:13px 14px;border:1px solid #34363e;border-radius:10px;outline:none;background:#111216;color:#fff;font-size:15px}#campo-carro:focus{border-color:#777}#campo-carro:disabled{opacity:.45;cursor:not-allowed}
+.acao{padding:13px 18px;border-radius:10px;background:#f2f2f2;color:#111;font-weight:800;cursor:pointer}.acao:hover:not(:disabled){transform:translateY(-1px)}.acao:disabled{opacity:.4;cursor:not-allowed}
+#carros-enviados{margin-top:18px}.carro-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:8px;background:#22242a;border-radius:9px}.carro-ok{color:#8fda9b;font-size:13px;font-weight:700}
+#avisos{position:fixed;top:82px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px;pointer-events:none}.aviso{max-width:340px;padding:13px 16px;border:1px solid #383a42;border-radius:10px;background:#202228;color:#eee;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#tutorial-layer{position:fixed;inset:0;z-index:1000;pointer-events:none}#tutorial-dim{position:fixed;inset:0;background:rgba(0,0,0,.42);pointer-events:auto}
+#tutorial-glow{position:fixed;display:none;z-index:1002;pointer-events:none;border-radius:12px;border:2px solid rgba(255,255,255,.95);box-shadow:0 0 22px 4px rgba(255,255,255,.24),0 0 0 9999px rgba(0,0,0,.42)}
+#tutorial-box{position:fixed;z-index:1100;width:min(440px,calc(100vw - 32px));padding:22px;border:1px solid #41434b;border-radius:16px;background:#191a20;box-shadow:0 20px 70px rgba(0,0,0,.65);pointer-events:auto}
+#tutorial-kicker{margin-bottom:8px;color:#aaa;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}#tutorial-title{margin:0 0 12px;font-size:22px}
+#tutorial-text{min-height:74px;color:#ccc;line-height:1.6;white-space:pre-line}#tutorial-text:after{content:"▌";color:#fff;animation:blink .7s infinite}#tutorial-text.finished:after{display:none}@keyframes blink{50%{opacity:0}}
+.tutorial-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:15px}.tutorial-btn{padding:11px 17px;border-radius:10px;font-weight:800;cursor:pointer}#tutorial-next{background:#f2f2f2;color:#111}#tutorial-skip{background:#292b31;color:#ddd}#tutorial-next:disabled{opacity:.45;cursor:not-allowed}
+#tutorial-arrow{position:fixed;z-index:1090;display:none;color:#fff;font-size:42px;line-height:1;pointer-events:none;text-shadow:0 4px 18px #000}.tutorial-pulse{animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{filter:brightness(1.35);transform:scale(1.025)}}
+.tutorial-bloqueado{pointer-events:none!important;user-select:none!important}
+#resultado-overlay{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(7px)}
+#resultado-modal{width:min(480px,100%);padding:28px;border:1px solid #383a42;border-radius:16px;background:#191a20;box-shadow:0 25px 80px rgba(0,0,0,.55);text-align:center}#resultado-modal h2{margin:0 0 10px;font-size:27px}#resultado-modal p{color:#aaa;line-height:1.55}
+.resultado-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:20px 0}.resultado-stat{padding:15px;border-radius:10px;background:#22242a}.resultado-stat span{display:block;color:#999;font-size:13px}.resultado-stat strong{display:block;margin-top:5px;font-size:22px}
+.resultado-botoes{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.resultado-botoes button{padding:12px 18px;border-radius:10px;font-weight:800;cursor:pointer}#btn-jogar-novamente{background:#f2f2f2;color:#111}#btn-voltar-inicio{background:#30333a;color:#fff}
+@media(max-width:850px){.jogo-grid{grid-template-columns:1fr}.letra{font-size:80px}.status{gap:20px;flex-wrap:wrap;justify-content:center}}
+@media(max-width:600px){header{padding:15px}.header-title span{display:none}main{width:calc(100% - 20px);margin-top:18px}.card{padding:17px}.entrada{flex-direction:column}.entrada>*{width:100%}#tutorial-box{padding:18px}#tutorial-title{font-size:19px}}
+</style>
+</head>
+<body>
+<header><div class="header-inner"><div class="header-title">
+<img src="{{ url_for('static', filename='icons/Logo_Icon.svg') }}" class="logo" alt="StopKart">
+<div>Tutorial 🎓 <span>Aprenda jogando</span></div></div>
+<button class="btn-voltar" onclick="voltarInicio()">← Voltar</button></div></header>
+
+<main>
+<div class="titulo-pagina"><h1>Tutorial do StopKart 🎓</h1><p>Uma partida guiada para você aprender as regras na prática.</p></div>
+<div class="jogo-grid">
+<div class="card letra-card" id="card-letra">
+<div class="letra-label">Letra sorteada</div><h1 id="letra" class="letra">?</h1><p class="instrucao">digite um modelo de carro</p>
+<div class="status">
+<div id="status-rodada">Rodada<strong id="rodada">0/5</strong></div>
+<div id="status-pontos"><img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> Pontos<strong id="meus-pontos">0</strong></div>
+<div id="status-vidas"><img src="{{ url_for('static', filename='icons/Heart_Icon.svg') }}" class="icone" alt=""> Vidas<strong id="minhas-vidas">3</strong></div>
+<div id="status-tempo"><img src="{{ url_for('static', filename='icons/Timer_Icon.svg') }}" class="icone" alt=""> Tempo<strong id="tempo">02:00</strong></div>
+</div></div>
+<div class="card" id="card-respostas">
+<h2><img src="{{ url_for('static', filename='icons/Car_Icon.svg') }}" class="icone-titulo" alt=""> Respostas</h2>
+<div class="entrada"><input id="campo-carro" placeholder="aguarde o tutorial..." disabled autocomplete="off"><button id="botao-carro" class="acao" disabled>Enviar</button></div>
+<div id="carros-enviados"></div>
+</div></div>
+</main>
+
+<div id="avisos"></div>
+
+<div id="tutorial-layer">
+<div id="tutorial-dim"></div><div id="tutorial-glow"></div><div id="tutorial-arrow">↓</div>
+<div id="tutorial-box">
+<div id="tutorial-kicker">Tutorial</div><h2 id="tutorial-title">Preparando...</h2><div id="tutorial-text"></div>
+<div class="tutorial-actions"><button id="tutorial-next" class="tutorial-btn" disabled>Próximo</button></div>
+</div></div>
+
+<div id="resultado-overlay"><div id="resultado-modal">
+<h2 id="resultado-titulo">Tutorial concluído! 🎓</h2><p id="resultado-mensagem"></p>
+<div class="resultado-stats"><div class="resultado-stat"><span>Pontos</span><strong id="resultado-pontos">0</strong></div><div class="resultado-stat"><span>Vidas restantes</span><strong id="resultado-vidas">0</strong></div></div>
+<div class="resultado-botoes"><button id="btn-jogar-novamente">Jogar novamente</button><button id="btn-voltar-inicio">Voltar ao início</button></div>
+</div></div>
+
+<script>
+const socket=io();
+const $=id=>document.getElementById(id);
+const letra=$("letra"),rodada=$("rodada"),pontos=$("meus-pontos"),vidas=$("minhas-vidas"),tempo=$("tempo");
+const campo=$("campo-carro"),botao=$("botao-carro"),lista=$("carros-enviados");
+const layer=$("tutorial-layer"),glow=$("tutorial-glow"),arrow=$("tutorial-arrow"),box=$("tutorial-box");
+const kicker=$("tutorial-kicker"),titulo=$("tutorial-title"),texto=$("tutorial-text"),next=$("tutorial-next");
+let tutorialAtivo=true,etapaAtual=0,digitando=false,respostaEnviada=false,acao=null,total=5,letraAtual=null;
+
+function fmt(s){s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function esperar(ms){return new Promise(r=>setTimeout(r,ms))}
+function aviso(t){const x=document.createElement("div");x.className="aviso";x.textContent=t;$("avisos").appendChild(x);setTimeout(()=>x.remove(),2800)}
+function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML}
+function addCarro(c){const x=document.createElement("div");x.className="carro-item";x.innerHTML=`<span><b>${esc(c)}</b></span><span class="carro-ok">✓ aceito</span>`;lista.prepend(x)}
+function voltarInicio(){location.href="/"}
+function bloquear(){campo.disabled=true;botao.disabled=true}
+function liberar(){campo.disabled=false;botao.disabled=false;campo.placeholder=`comece com ${letraAtual||"a letra"}...`}
+function esconderSpot(){glow.style.display="none";arrow.style.display="none";document.querySelectorAll(".tutorial-pulse").forEach(x=>x.classList.remove("tutorial-pulse"))}
+
+function spot(el){
+esconderSpot();if(!el)return;const r=el.getBoundingClientRect(),m=7;glow.style.display="block";glow.style.left=`${r.left-m}px`;glow.style.top=`${r.top-m}px`;glow.style.width=`${r.width+m*2}px`;glow.style.height=`${r.height+m*2}px`;el.classList.add("tutorial-pulse");
+const br=box.getBoundingClientRect();let left=Math.max(16,Math.min(innerWidth-br.width-16,(innerWidth-br.width)/2));let top=innerHeight-br.height-28;if(r.top>innerHeight*.58)top=20;else if(r.top<220)top=Math.min(innerHeight-br.height-20,r.bottom+25);
+box.style.left=`${left}px`;box.style.top=`${Math.max(16,top)}px`;
+const cx=r.left+r.width/2,cy=r.top+r.height/2;arrow.textContent=cy>(top+br.height/2)?"↓":"↑";arrow.style.left=`${Math.max(10,Math.min(innerWidth-50,cx-18))}px`;arrow.style.top=`${cy>(top+br.height/2)?top+br.height+4:top-43}px`;arrow.style.display="block";
+}
+async function typeText(t){
+digitando=true;next.disabled=true;texto.classList.remove("finished");texto.textContent="";
+if(acao?.elemento)acao.elemento.classList.add("tutorial-bloqueado");
+for(const c of t){if(!tutorialAtivo)return;texto.textContent+=c;await esperar(c==="."||c==="!"||c==="?"?180:c===","?90:22)}
+texto.classList.add("finished");digitando=false;if(acao?.elemento)acao.elemento.classList.remove("tutorial-bloqueado");
+}
+
+function etapas(){
+return[
+[$("card-letra"),"Bem-Vindo ao StopKart 🎓","Aqui você vai aprender o jogo na prática. Primeiro vamos conhecer cada parte da tela.","next"],
+[letra,"1. A letra sorteada","Essa é a letra da rodada. Você precisa mandar um modelo de carro que comece com ela.","next"],
+[$("status-rodada"),"2. Rodada","Aqui aparece em qual rodada você está. O tutorial tem 5 rodadas.","next"],
+[$("status-pontos"),"3. Pontos","Cada resposta correta vale 1 ponto. Quanto mais rodadas você completar, mais pontos acumula.","next"],
+[$("status-vidas"),"4. Vidas ❤️","Você começa com 3 vidas. Uma resposta inválida ou o tempo acabar sem responder faz você perder uma vida.","next"],
+[$("status-tempo"),"5. Tempo ⏱️","Esse relógio mostra quanto tempo resta na rodada. Quando chegar a zero, a rodada termina.","next"],
+[campo,"6. Onde responder?","Agora você já sabe como funciona. Quando começar, digite aqui um modelo de carro que comece com a letra mostrada e envie sua resposta.","liberar"]
+]}
+
+let passos=etapas();
+
+async function mostrar(i){
+if(!tutorialAtivo)return;if(i>=passos.length){finalizarGuia();return}
+etapaAtual=i;const [el,t,txt,tipo]=passos[i];acao={elemento:el,tipo};kicker.textContent=`tutorial • ${i+1}/${passos.length}`;titulo.textContent=t;next.textContent=tipo==="liberar"?"começar":"próximo";next.style.display="inline-block";spot(el);await typeText(txt);if(!tutorialAtivo)return;
+if(tipo==="campo"){
+campo.disabled=false;campo.focus();let feito=false;const ok=()=>{if(feito||digitando)return;feito=true;campo.removeEventListener("focus",ok);campo.removeEventListener("click",ok);mostrar(i+1)};campo.addEventListener("focus",ok,{once:true});campo.addEventListener("click",ok,{once:true});
+}else if(tipo==="enviar"){botao.disabled=false}else if(tipo==="liberar"){next.disabled=false}else next.disabled=false
+}
+function finalizarGuia(){tutorialAtivo=false;acao=null;esconderSpot();layer.style.display="none";liberar();socket.emit("tutorial_comecar_jogo");}
+next.onclick=()=>{if(!digitando&&tutorialAtivo)mostrar(etapaAtual+1)}
+
+function enviar(){if(!campo.value.trim()||digitando||respostaEnviada||!socket.connected||campo.disabled)return;socket.emit("tutorial_enviar_carro",{carro:campo.value.trim()});campo.value=""}
+botao.onclick=enviar;campo.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();enviar()}};
+
+socket.on("connect",()=>socket.emit("tutorial_iniciar"));
+socket.on("disconnect",()=>{aviso("⚠️ conexão com o servidor perdida.");bloquear()});
+
+socket.on("tutorial_pronto",d=>{
+total=d.total_rodadas||5;rodada.textContent=`0/${total}`;pontos.textContent=d.pontos??0;vidas.textContent=d.vidas??3;tempo.textContent=fmt(d.tempo??120);letra.textContent="?";lista.innerHTML="";bloquear();setTimeout(()=>mostrar(0),250)
+});
+
+socket.on("tutorial_liberado",d=>{
+    tutorialAtivo=false;
+    acao=null;
+    esconderSpot();
+    layer.style.display="none";
+    letraAtual=d.letra||letraAtual;
+    if(d.rodada!==undefined)rodada.textContent=`${d.rodada}/${d.total_rodadas||total}`;
+    if(d.vidas!==undefined)vidas.textContent=d.vidas;
+    if(d.pontos!==undefined)pontos.textContent=d.pontos;
+    if(d.tempo!==undefined)tempo.textContent=fmt(d.tempo);
+    if(d.letra)letra.textContent=d.letra;
+    liberar();
+});
+
+socket.on("tutorial_nova_rodada",d=>{
+letraAtual=d.letra;rodada.textContent=`${d.rodada}/${d.total_rodadas}`;letra.textContent=d.letra;vidas.textContent=d.vidas;pontos.textContent=d.pontos;tempo.textContent=fmt(d.tempo);respostaEnviada=false;lista.innerHTML="";campo.value="";campo.placeholder=`comece com ${d.letra}...`;if(!tutorialAtivo)liberar();else bloquear()
+});
+socket.on("tutorial_tempo_atualizado",d=>{tempo.textContent=fmt(d.restante);tempo.style.color=d.restante<=10?"#ff7777":"#fff"});
+socket.on("tutorial_carro_aceito",d=>{
+addCarro(d.carro);vidas.textContent=d.vidas;pontos.textContent=d.pontos;respostaEnviada=true;bloquear();aviso("✅ Resposta aceita!");
+if(tutorialAtivo&&acao?.tipo==="enviar")setTimeout(()=>mostrar(etapaAtual+1),500)
+});
+socket.on("tutorial_resposta_carro",d=>{if(d.vidas!==undefined)vidas.textContent=d.vidas;if(d.pontos!==undefined)pontos.textContent=d.pontos;if(d.mensagem)aviso("❌ "+d.mensagem)});
+socket.on("tutorial_rodada_terminou",d=>{if(d.vidas!==undefined)vidas.textContent=d.vidas;if(d.pontos!==undefined)pontos.textContent=d.pontos;respostaEnviada=false});
+socket.on("tutorial_terminou",d=>{
+tutorialAtivo=false;esconderSpot();layer.style.display="none";bloquear();$("resultado-overlay").style.display="flex";$("resultado-pontos").textContent=d.pontos??0;$("resultado-vidas").textContent=d.vidas??0;
+$("resultado-titulo").textContent=d.eliminado?"Fim do tutorial 💀":"Tutorial concluído!! 🎓";$("resultado-mensagem").textContent=d.eliminado?"Você perdeu todas as vidas. Pode tentar novamente.":"Boa! Você completou as 5 rodadas de treinamento."
+});
+
+$("btn-jogar-novamente").onclick=()=>{location.reload()};
+$("btn-voltar-inicio").onclick=voltarInicio;
+addEventListener("resize",()=>{if(tutorialAtivo&&acao?.elemento)spot(acao.elemento)});
+addEventListener("scroll",()=>{if(tutorialAtivo&&acao?.elemento)spot(acao.elemento)},true);
+</script>
+</body>
+</html>

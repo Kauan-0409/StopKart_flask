@@ -85,6 +85,14 @@ salas = {}
 # sid -> {"codigo": codigo, "nome": nome}
 conexoes = {}
 
+# Estado das partidas de tutorial, separado das salas normais.
+tutoriais = {}
+
+# O tutorial usa poucas letras fáceis e sempre termina após 5 rodadas.
+TUTORIAL_RODADAS = 5
+TUTORIAL_TEMPO_RODADA = TEMPO_PADRAO
+TUTORIAL_LETRAS = ["A", "C", "M", "S", "T"]
+
 
 # ==========================================
 # GERAR CÓDIGO
@@ -281,7 +289,10 @@ def inicio():
 def tutorial():
 
     return render_template(
-        "tutorial.html"
+        "tutorial.html",
+        tempo=TUTORIAL_TEMPO_RODADA,
+        total_rodadas=TUTORIAL_RODADAS,
+        vidas=VIDAS_INICIAIS
     )
 
 
@@ -2929,6 +2940,373 @@ def enviar_carro(data):
         )
 
 
+
+# ==========================================
+# TUTORIAL - PARTIDA PRÁTICA
+# ==========================================
+#
+# O tutorial tem uma partida própria, separada das salas.
+# Assim o tutorial.html pode usar a mesma lógica visual do
+# modo solo sem criar uma sala, host ou código de convite.
+#
+
+
+def dados_tutorial(sid):
+
+    tutorial_data = tutoriais.get(sid)
+
+    if not tutorial_data:
+        return None
+
+    return {
+        "rodada": tutorial_data["rodada"],
+        "total_rodadas": tutorial_data["total_rodadas"],
+        "letra": tutorial_data["letra"],
+        "fim": tutorial_data["fim_rodada"],
+        "vidas": tutorial_data["vidas"],
+        "pontos": tutorial_data["pontos"],
+        "jogo_iniciado": tutorial_data["jogo_iniciado"]
+    }
+
+
+def iniciar_rodada_tutorial(sid, iniciar_timer=True):
+
+    if sid not in tutoriais:
+        return
+
+    tutorial_data = tutoriais[sid]
+
+    if not tutorial_data["jogo_iniciado"]:
+        return
+
+    if tutorial_data["rodada"] > tutorial_data["total_rodadas"]:
+        finalizar_tutorial(sid)
+        return
+
+    # Uma letra fácil e diferente em cada uma das 5 rodadas.
+    indice = tutorial_data["rodada"] - 1
+
+    if indice < len(TUTORIAL_LETRAS):
+        letra = TUTORIAL_LETRAS[indice]
+    else:
+        letra = random.choice(TUTORIAL_LETRAS)
+
+    tutorial_data["letra"] = letra
+    tutorial_data["carros_usados"] = []
+    tutorial_data["respondeu"] = False
+    tutorial_data["fim_rodada"] = (
+        time.time() + tutorial_data["tempo_rodada"]
+    ) if iniciar_timer else None
+
+    socketio.emit(
+        "tutorial_nova_rodada",
+        {
+            "rodada": tutorial_data["rodada"],
+            "total_rodadas": tutorial_data["total_rodadas"],
+            "letra": tutorial_data["letra"],
+            "tempo": tutorial_data["tempo_rodada"],
+            "fim": tutorial_data["fim_rodada"],
+            "vidas": tutorial_data["vidas"],
+            "pontos": tutorial_data["pontos"]
+        },
+        to=sid
+    )
+
+    if iniciar_timer and not tutorial_data["timer_ativo"]:
+        tutorial_data["timer_ativo"] = True
+        socketio.start_background_task(
+            controlar_tempo_tutorial,
+            sid
+        )
+
+
+def controlar_tempo_tutorial(sid):
+
+    while sid in tutoriais:
+
+        tutorial_data = tutoriais[sid]
+
+        if not tutorial_data["jogo_iniciado"]:
+            tutorial_data["timer_ativo"] = False
+            return
+
+        restante = max(
+            0,
+            int(tutorial_data["fim_rodada"] - time.time())
+        )
+
+        socketio.emit(
+            "tutorial_tempo_atualizado",
+            {
+                "restante": restante
+            },
+            to=sid
+        )
+
+        if restante <= 0:
+            terminar_rodada_tutorial(sid, por_tempo=True)
+
+        socketio.sleep(1)
+
+
+def terminar_rodada_tutorial(sid, por_tempo=False):
+
+    if sid not in tutoriais:
+        return
+
+    tutorial_data = tutoriais[sid]
+
+    if not tutorial_data["jogo_iniciado"]:
+        return
+
+    if tutorial_data["encerrando_rodada"]:
+        return
+
+    tutorial_data["encerrando_rodada"] = True
+
+    # No modo solo, não responder até o tempo acabar custa uma vida.
+    if por_tempo and not tutorial_data["respondeu"]:
+        tutorial_data["vidas"] -= 1
+        tutorial_data["vidas"] = max(0, tutorial_data["vidas"])
+
+    tutorial_data["fim_rodada"] = None
+
+    socketio.emit(
+        "tutorial_tempo_atualizado",
+        {
+            "restante": 0
+        },
+        to=sid
+    )
+
+    socketio.emit(
+        "tutorial_rodada_terminou",
+        {
+            "rodada": tutorial_data["rodada"],
+            "total_rodadas": tutorial_data["total_rodadas"],
+            "vidas": tutorial_data["vidas"],
+            "pontos": tutorial_data["pontos"]
+        },
+        to=sid
+    )
+
+    # Se o jogador zerar as vidas durante a prática, encerra como no solo.
+    if tutorial_data["vidas"] <= 0:
+        finalizar_tutorial(sid, eliminado=True)
+        return
+
+    if tutorial_data["rodada"] >= tutorial_data["total_rodadas"]:
+        finalizar_tutorial(sid)
+        return
+
+    tutorial_data["rodada"] += 1
+    tutorial_data["encerrando_rodada"] = False
+
+    socketio.start_background_task(
+        iniciar_rodada_tutorial,
+        sid
+    )
+
+
+def finalizar_tutorial(sid, eliminado=False):
+
+    if sid not in tutoriais:
+        return
+
+    tutorial_data = tutoriais[sid]
+
+    tutorial_data["jogo_iniciado"] = False
+    tutorial_data["timer_ativo"] = False
+    tutorial_data["fim_rodada"] = None
+    tutorial_data["letra"] = None
+
+    socketio.emit(
+        "tutorial_terminou",
+        {
+            "eliminado": eliminado,
+            "vidas": tutorial_data["vidas"],
+            "pontos": tutorial_data["pontos"],
+            "rodadas": tutorial_data["rodada"],
+            "total_rodadas": tutorial_data["total_rodadas"]
+        },
+        to=sid
+    )
+
+
+@socketio.on("tutorial_iniciar")
+def tutorial_iniciar():
+
+    sid = request.sid
+
+    # Reiniciar aqui é intencional: o tutorial pode ser aberto
+    # novamente sem carregar estado antigo da sessão anterior.
+    tutoriais[sid] = {
+        "jogo_iniciado": True,
+        "rodada": 1,
+        "total_rodadas": TUTORIAL_RODADAS,
+        "tempo_rodada": TUTORIAL_TEMPO_RODADA,
+        "vidas": VIDAS_INICIAIS,
+        "pontos": 0,
+        "letra": None,
+        "carros_usados": [],
+        "respondeu": False,
+        "fim_rodada": None,
+        "timer_ativo": False,
+        "encerrando_rodada": False,
+        "tutorial_liberado": False
+    }
+
+    emit(
+        "tutorial_pronto",
+        {
+            "vidas": VIDAS_INICIAIS,
+            "pontos": 0,
+            "total_rodadas": TUTORIAL_RODADAS,
+            "tempo": TUTORIAL_TEMPO_RODADA
+        }
+    )
+
+    iniciar_rodada_tutorial(sid, iniciar_timer=False)
+
+
+@socketio.on("tutorial_comecar_jogo")
+def tutorial_comecar_jogo():
+
+    sid = request.sid
+    tutorial_data = tutoriais.get(sid)
+
+    if not tutorial_data or not tutorial_data["jogo_iniciado"]:
+        return
+
+    if tutorial_data["timer_ativo"]:
+        return
+
+    tutorial_data["fim_rodada"] = time.time() + tutorial_data["tempo_rodada"]
+    tutorial_data["timer_ativo"] = True
+
+    socketio.emit(
+        "tutorial_tempo_atualizado",
+        {"restante": tutorial_data["tempo_rodada"]},
+        to=sid
+    )
+
+    socketio.start_background_task(
+        controlar_tempo_tutorial,
+        sid
+    )
+
+
+@socketio.on("tutorial_reiniciar")
+def tutorial_reiniciar():
+
+    # O botão de jogar novamente do tutorial pode chamar exatamente
+    # este evento sem precisar criar uma sala nova.
+    tutorial_iniciar()
+
+
+@socketio.on("tutorial_enviar_carro")
+def tutorial_enviar_carro(data):
+
+    sid = request.sid
+    tutorial_data = tutoriais.get(sid)
+
+    if not tutorial_data or not tutorial_data["jogo_iniciado"]:
+        emit(
+            "tutorial_resposta_carro",
+            {
+                "sucesso": False,
+                "mensagem": "o tutorial ainda não está em uma rodada"
+            }
+        )
+        return
+
+    if tutorial_data["vidas"] <= 0:
+        emit(
+            "tutorial_resposta_carro",
+            {
+                "sucesso": False,
+                "mensagem": "você perdeu todas as vidas!",
+                "vidas": 0,
+                "pontos": tutorial_data["pontos"]
+            }
+        )
+        return
+
+    if tutorial_data["respondeu"]:
+        emit(
+            "tutorial_resposta_carro",
+            {
+                "sucesso": False,
+                "mensagem": "você já respondeu nesta rodada! ✓",
+                "vidas": tutorial_data["vidas"],
+                "pontos": tutorial_data["pontos"]
+            }
+        )
+        return
+
+    if (
+        not tutorial_data["fim_rodada"]
+        or time.time() >= tutorial_data["fim_rodada"]
+    ):
+        return
+
+    carro = str(data.get("carro", "")).strip()
+
+    if not carro:
+        return
+
+    n = normalizar_carro(carro)
+
+    def erro(mensagem):
+        tutorial_data["vidas"] -= 1
+        tutorial_data["vidas"] = max(0, tutorial_data["vidas"])
+
+        emit(
+            "tutorial_resposta_carro",
+            {
+                "sucesso": False,
+                "mensagem": mensagem,
+                "vidas": tutorial_data["vidas"],
+                "pontos": tutorial_data["pontos"]
+            }
+        )
+
+        if tutorial_data["vidas"] <= 0:
+            finalizar_tutorial(sid, eliminado=True)
+
+    if n in tutorial_data["carros_usados"]:
+        erro("esse carro já foi usado! -1 vida")
+        return
+
+    if n not in carros_normalizados:
+        erro("esse modelo não está na coleção! -1 vida")
+        return
+
+    letra_normalizada = normalizar_carro(tutorial_data["letra"])
+
+    if not n.startswith(letra_normalizada):
+        erro(
+            f"esse carro não começa com "
+            f"{tutorial_data['letra']}! -1 vida"
+        )
+        return
+
+    tutorial_data["carros_usados"].append(n)
+    tutorial_data["respondeu"] = True
+    tutorial_data["pontos"] += 1
+
+    emit(
+        "tutorial_carro_aceito",
+        {
+            "carro": carro,
+            "vidas": tutorial_data["vidas"],
+            "pontos": tutorial_data["pontos"]
+        }
+    )
+
+    terminar_rodada_tutorial(sid, por_tempo=False)
+
+
 # ==========================================
 # CHAT
 # ==========================================
@@ -3018,6 +3396,9 @@ def mensagem_chat(data):
 
 @socketio.on("disconnect")
 def desconectado():
+
+    # Tutorial não usa sala, então o estado é removido diretamente pelo SID.
+    tutoriais.pop(request.sid, None)
 
     conexao = conexoes.pop(
         request.sid,

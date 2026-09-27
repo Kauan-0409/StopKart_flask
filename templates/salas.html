@@ -1277,7 +1277,7 @@
                 alt=""
             >
 
-            jogo
+            Jogo
 
         </button>
 
@@ -1315,7 +1315,7 @@
             class="botao-sair-menu"
             type="button"
         >
-            🚪 sair da sala
+            🚪 Sair da sala
         </button>
 
     </div>
@@ -1345,7 +1345,7 @@
                         alt=""
                     >
 
-                    jogadores
+                    Jogadores
 
                 </h2>
 
@@ -1480,7 +1480,7 @@
                             alt=""
                         >
 
-                        tempo
+                        Tempo
 
                         <strong>
                             {{ tempo }}s
@@ -1497,7 +1497,7 @@
                             alt=""
                         >
 
-                        máximo
+                        Máximo
 
                         <strong>
                             {{ max_jogadores }}
@@ -1522,7 +1522,7 @@
                         alt=""
                     >
 
-                    partida
+                    Partida
 
                 </h2>
 
@@ -1533,17 +1533,17 @@
 
                         {% if em_intervalo %}
 
-                            intervalo entre rodadas
+                            Intervalo entre rodadas
 
                         {% else %}
 
-                            partida em andamento
+                            Partida em andamento
 
                         {% endif %}
 
                     {% else %}
 
-                        esperando o host iniciar...
+                        Esperando o host iniciar...
 
                     {% endif %}
 
@@ -1564,7 +1564,7 @@
                         alt=""
                     >
 
-                    começar jogo
+                    Começar jogo
 
                 </button>
 
@@ -1574,7 +1574,7 @@
                     class="aviso"
                     style="display: block;"
                 >
-                    aguardando jogadores...
+                    Aguardando jogadores...
                 </div>
 
                 {% endif %}
@@ -1594,7 +1594,7 @@
                         alt=""
                     >
 
-                    reiniciar sala
+                    Reiniciar sala
 
                 </button>
 
@@ -1615,7 +1615,7 @@
                 >
 
                     <div class="intervalo-titulo">
-                        ⏸️ intervalo entre rodadas
+                        ⏸️ Intervalo entre rodadas
                     </div>
 
 
@@ -1623,7 +1623,7 @@
                         id="intervalo-subtitulo"
                         class="intervalo-subtitulo"
                     >
-                        próxima letra em breve
+                        Próxima letra em breve
                     </div>
 
 
@@ -1646,7 +1646,7 @@
                             alt=""
                         >
 
-                        chat liberado durante o intervalo
+                        Chat liberado durante o intervalo
 
                     </div>
 
@@ -1656,7 +1656,7 @@
                         class="btn-pular-intervalo"
                         style="display: none;"
                     >
-                        pular intervalo
+                        Pular intervalo
                     </button>
 
                 </div>
@@ -1679,7 +1679,7 @@
             <div class="card letra-card">
 
                 <div class="letra-label">
-                    letra sorteada
+                    Letra sorteada
                 </div>
 
 
@@ -1695,7 +1695,7 @@
 
 
                 <p class="instrucao">
-                    digite um modelo de carro
+                    Digite um modelo de carro
                 </p>
 
 
@@ -1703,7 +1703,7 @@
 
                     <div>
 
-                        rodada
+                        Rodada
 
                         <strong id="rodada">
                             0/{{ total_rodadas }}
@@ -1720,7 +1720,7 @@
                             alt=""
                         >
 
-                        pontos
+                        Pontos
 
                         <strong id="meus-pontos">
                             0
@@ -1737,7 +1737,7 @@
                             alt=""
                         >
 
-                        vidas
+                        Vidas
 
                         <strong id="minhas-vidas">
                             3
@@ -1754,7 +1754,7 @@
                             alt=""
                         >
 
-                        tempo
+                        Tempo
 
                         <strong id="tempo">
                             {{ "%02d:%02d"|format(tempo//60, tempo%60) }}
@@ -1779,7 +1779,7 @@
                         alt=""
                     >
 
-                    respostas
+                    Respostas
 
                 </h2>
 
@@ -1799,7 +1799,7 @@
                         class="acao"
                         disabled
                     >
-                        enviar
+                        Enviar
                     </button>
 
                 </div>
@@ -1833,7 +1833,7 @@
                     alt=""
                 >
 
-                chat da sala
+                Chat da sala
 
             </h2>
 
@@ -1854,7 +1854,7 @@
                     id="botao-chat"
                     class="acao"
                 >
-                    enviar
+                    Enviar
                 </button>
 
             </div>
@@ -1876,11 +1876,11 @@
         <div class="modal-sair">
 
             <h2>
-                👑 escolher novo host
+                👑 Escolher novo host
             </h2>
 
             <p>
-                você é o host. antes de sair, escolha qual jogador vai assumir o host da sala.
+                Você é o host. Antes de sair, escolha qual jogador vai assumir o host da sala.
             </p>
 
             <div
@@ -1893,7 +1893,7 @@
                 class="btn-cancelar-sair"
                 type="button"
             >
-                cancelar
+                Cancelar
             </button>
 
         </div>
@@ -1923,7 +1923,7 @@
                     alt=""
                 >
 
-                ranking
+                Ranking
 
             </div>
 
@@ -1932,7 +1932,7 @@
                 id="ranking-subtitulo"
                 class="ranking-subtitulo"
             >
-                resultado da rodada
+                Resultado da rodada
             </div>
 
 
@@ -1951,7 +1951,7 @@
                     id="solo-reinicio-mensagem"
                     class="solo-reinicio-mensagem"
                 >
-                    você perdeu todas as vidas. quer jogar novamente?
+                    Você perdeu todas as vidas. Quer jogar novamente?
                 </div>
 
                 <div class="solo-reinicio-botoes">
@@ -1961,7 +1961,7 @@
                         class="btn-jogar-novamente"
                         type="button"
                     >
-                        🔄 jogar novamente
+                        🔄 Jogar novamente
                     </button>
 
                     <button
@@ -1969,7 +1969,7 @@
                         class="btn-voltar-inicio"
                         type="button"
                     >
-                        🏠 voltar ao início
+                        🏠 Voltar ao início
                     </button>
 
                 </div>
@@ -1986,7 +1986,7 @@
                     id="votacao-status"
                     class="votacao-status"
                 >
-                    0/0 jogadores votaram
+                    0/0 Jogadores votaram
                 </div>
 
                 <button
@@ -1994,7 +1994,7 @@
                     class="btn-votar-reinicio"
                     type="button"
                 >
-                    🔄 votar para reiniciar
+                    🔄 Votar para reiniciar
                 </button>
 
             </div>
@@ -2007,7 +2007,7 @@
                     class="btn-fechar"
                     onclick="fecharRanking()"
                 >
-                    continuar
+                    Continuar
                 </button>
 
             </div>
@@ -2148,8 +2148,8 @@
 
             botaoMusica.textContent =
                 musicaLigada
-                ? "🔊 música"
-                : "🔇 música";
+                ? "🔊 Música"
+                : "🔇 Música";
 
         }
 
@@ -2540,7 +2540,7 @@
             } catch (erro) {
 
                 console.log(
-                    "não foi possível tocar o som:",
+                    "Não foi possível tocar o som:",
                     erro
                 );
 
@@ -2892,7 +2892,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.green}" class="icone" alt=""> conectado`;
+                    `<img src="${ICONES.green}" class="icone" alt=""> Conectado`;
 
                 statusConexao.style.color =
                     "#6fda8b";
@@ -2918,7 +2918,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.red}" class="icone" alt=""> desconectado`;
+                    `<img src="${ICONES.red}" class="icone" alt=""> Desconectado`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -2932,7 +2932,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.red}" class="icone" alt=""> erro na conexão`;
+                    `<img src="${ICONES.red}" class="icone" alt=""> Erro na conexão`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -2948,7 +2948,7 @@
                 if (botaoJogarNovamente) {
                     botaoJogarNovamente.disabled = false;
                     botaoJogarNovamente.textContent =
-                        "🔄 jogar novamente";
+                        "🔄 Jogar novamente";
                 }
 
                 if (botaoVoltarInicio) {
