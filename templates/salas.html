@@ -1244,7 +1244,7 @@
         <div class="logo">
 
             <img
-                src="{{ url_for('static', filename='icons/RodaStopkart.png') }}"
+                src="{{ url_for('static', filename='RodaStopkart.png') }}"
                 class="logo-stopkart"
                 alt=""
             >Stopkart
@@ -1252,7 +1252,7 @@
         </div>
 
         <div class="codigo">
-            sala: {{ codigo }}
+            Sala: {{ codigo }}
         </div>
 
     </header>
@@ -1277,7 +1277,7 @@
                 alt=""
             >
 
-            Jogo
+            jogo
 
         </button>
 
@@ -1306,7 +1306,12 @@
             class="botao-musica-menu"
             type="button"
         >
-            🔊 música
+            <img
+                src="{{ url_for('static', filename='icons/MusicalNote_Icon.svg') }}"
+                class="icone"
+                alt=""
+            >
+            música
         </button>
 
 
@@ -1315,7 +1320,12 @@
             class="botao-sair-menu"
             type="button"
         >
-            🚪 Sair da sala
+            <img
+                src="{{ url_for('static', filename='icons/Door_Icon.svg') }}"
+                class="icone"
+                alt=""
+            >
+            sair da sala
         </button>
 
     </div>
@@ -1345,7 +1355,7 @@
                         alt=""
                     >
 
-                    Jogadores
+                    jogadores
 
                 </h2>
 
@@ -1480,7 +1490,7 @@
                             alt=""
                         >
 
-                        Tempo
+                        tempo
 
                         <strong>
                             {{ tempo }}s
@@ -1497,7 +1507,7 @@
                             alt=""
                         >
 
-                        Máximo
+                        máximo
 
                         <strong>
                             {{ max_jogadores }}
@@ -1522,7 +1532,7 @@
                         alt=""
                     >
 
-                    Partida
+                    partida
 
                 </h2>
 
@@ -1533,17 +1543,17 @@
 
                         {% if em_intervalo %}
 
-                            Intervalo entre rodadas
+                            intervalo entre rodadas
 
                         {% else %}
 
-                            Partida em andamento
+                            partida em andamento
 
                         {% endif %}
 
                     {% else %}
 
-                        Esperando o host iniciar...
+                        esperando o host iniciar...
 
                     {% endif %}
 
@@ -1564,7 +1574,7 @@
                         alt=""
                     >
 
-                    Começar jogo
+                    começar jogo
 
                 </button>
 
@@ -1574,7 +1584,7 @@
                     class="aviso"
                     style="display: block;"
                 >
-                    Aguardando jogadores...
+                    aguardando jogadores...
                 </div>
 
                 {% endif %}
@@ -1594,7 +1604,7 @@
                         alt=""
                     >
 
-                    Reiniciar sala
+                    reiniciar sala
 
                 </button>
 
@@ -1615,7 +1625,7 @@
                 >
 
                     <div class="intervalo-titulo">
-                        ⏸️ Intervalo entre rodadas
+                        ⏸️ intervalo entre rodadas
                     </div>
 
 
@@ -1623,7 +1633,7 @@
                         id="intervalo-subtitulo"
                         class="intervalo-subtitulo"
                     >
-                        Próxima letra em breve
+                        próxima letra em breve
                     </div>
 
 
@@ -1646,7 +1656,7 @@
                             alt=""
                         >
 
-                        Chat liberado durante o intervalo
+                        chat liberado durante o intervalo
 
                     </div>
 
@@ -1656,7 +1666,7 @@
                         class="btn-pular-intervalo"
                         style="display: none;"
                     >
-                        Pular intervalo
+                        pular intervalo
                     </button>
 
                 </div>
@@ -1679,7 +1689,7 @@
             <div class="card letra-card">
 
                 <div class="letra-label">
-                    Letra sorteada
+                    letra sorteada
                 </div>
 
 
@@ -1695,7 +1705,7 @@
 
 
                 <p class="instrucao">
-                    Digite um modelo de carro
+                    digite um modelo de carro
                 </p>
 
 
@@ -1703,7 +1713,7 @@
 
                     <div>
 
-                        Rodada
+                        rodada
 
                         <strong id="rodada">
                             0/{{ total_rodadas }}
@@ -1720,7 +1730,7 @@
                             alt=""
                         >
 
-                        Pontos
+                        pontos
 
                         <strong id="meus-pontos">
                             0
@@ -1737,7 +1747,7 @@
                             alt=""
                         >
 
-                        Vidas
+                        vidas
 
                         <strong id="minhas-vidas">
                             3
@@ -1754,7 +1764,7 @@
                             alt=""
                         >
 
-                        Tempo
+                        tempo
 
                         <strong id="tempo">
                             {{ "%02d:%02d"|format(tempo//60, tempo%60) }}
@@ -1779,7 +1789,7 @@
                         alt=""
                     >
 
-                    Respostas
+                    respostas
 
                 </h2>
 
@@ -1799,7 +1809,7 @@
                         class="acao"
                         disabled
                     >
-                        Enviar
+                        enviar
                     </button>
 
                 </div>
@@ -1833,7 +1843,7 @@
                     alt=""
                 >
 
-                Chat da sala
+                chat da sala
 
             </h2>
 
@@ -1854,7 +1864,7 @@
                     id="botao-chat"
                     class="acao"
                 >
-                    Enviar
+                    enviar
                 </button>
 
             </div>
@@ -1876,11 +1886,16 @@
         <div class="modal-sair">
 
             <h2>
-                👑 Escolher novo host
+                <img
+                    src="{{ url_for('static', filename='icons/Crown_Icon.svg') }}"
+                    class="icone-titulo"
+                    alt=""
+                >
+                escolher novo host
             </h2>
 
             <p>
-                Você é o host. Antes de sair, escolha qual jogador vai assumir o host da sala.
+                você é o host. antes de sair, escolha qual jogador vai assumir o host da sala.
             </p>
 
             <div
@@ -1893,7 +1908,7 @@
                 class="btn-cancelar-sair"
                 type="button"
             >
-                Cancelar
+                cancelar
             </button>
 
         </div>
@@ -1918,12 +1933,12 @@
             >
 
                 <img
-                    src="{{ url_for('static', filename='icons/Tropy_Icon.svg') }}"
+                    src="{{ url_for('static', filename='icons/Trophy_Icon.svg') }}"
                     class="icone-titulo"
                     alt=""
                 >
 
-                Ranking
+                ranking
 
             </div>
 
@@ -1932,7 +1947,7 @@
                 id="ranking-subtitulo"
                 class="ranking-subtitulo"
             >
-                Resultado da rodada
+                resultado da rodada
             </div>
 
 
@@ -1951,7 +1966,7 @@
                     id="solo-reinicio-mensagem"
                     class="solo-reinicio-mensagem"
                 >
-                    Você perdeu todas as vidas. Quer jogar novamente?
+                    você perdeu todas as vidas. quer jogar novamente?
                 </div>
 
                 <div class="solo-reinicio-botoes">
@@ -1961,7 +1976,7 @@
                         class="btn-jogar-novamente"
                         type="button"
                     >
-                        🔄 Jogar novamente
+                        <img src="{{ url_for('static', filename='icons/Rotation_Icon.svg') }}" class="icone" alt=""> jogar novamente
                     </button>
 
                     <button
@@ -1969,7 +1984,7 @@
                         class="btn-voltar-inicio"
                         type="button"
                     >
-                        🏠 Voltar ao início
+                        🏠 voltar ao início
                     </button>
 
                 </div>
@@ -1986,7 +2001,7 @@
                     id="votacao-status"
                     class="votacao-status"
                 >
-                    0/0 Jogadores votaram
+                    0/0 jogadores votaram
                 </div>
 
                 <button
@@ -1994,7 +2009,7 @@
                     class="btn-votar-reinicio"
                     type="button"
                 >
-                    🔄 Votar para reiniciar
+                    <img src="{{ url_for('static', filename='icons/Rotation_Icon.svg') }}" class="icone" alt=""> votar para reiniciar
                 </button>
 
             </div>
@@ -2007,7 +2022,7 @@
                     class="btn-fechar"
                     onclick="fecharRanking()"
                 >
-                    Continuar
+                    continuar
                 </button>
 
             </div>
@@ -2059,7 +2074,7 @@
         const ICONES = {
 
             user:
-                "/static/icons/User_Icon_Icon.svg",
+                "/static/icons/User_Icon.svg",
 
             rotation:
                 "/static/icons/Rotation_Icon.svg",
@@ -2077,7 +2092,7 @@
                 "/static/icons/Settings_Icon.svg",
 
             trophy:
-                "/static/icons/Tropy_Icon.svg",
+                "/static/icons/Trophy_Icon.svg",
 
             timer:
                 "/static/icons/Timer_Icon.svg",
@@ -2109,8 +2124,11 @@
             game:
                 "/static/icons/GameController_Icon.svg",
 
+            music:
+                "/static/icons/MusicalNote_Icon.svg",
+
             logo:
-                "/static/icons/Logo_Icon.svg"
+                "/static/RodaStopkart.png"
 
         };
 
@@ -2146,10 +2164,9 @@
                 return;
             }
 
-            botaoMusica.textContent =
-                musicaLigada
-                ? "🔊 Música"
-                : "🔇 Música";
+            botaoMusica.innerHTML =
+                `<img src="${ICONES.music}" class="icone" alt="">` +
+                (musicaLigada ? "música" : "música desligada");
 
         }
 
@@ -2540,7 +2557,7 @@
             } catch (erro) {
 
                 console.log(
-                    "Não foi possível tocar o som:",
+                    "não foi possível tocar o som:",
                     erro
                 );
 
@@ -2892,7 +2909,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.green}" class="icone" alt=""> Conectado`;
+                    `<img src="${ICONES.green}" class="icone" alt=""> conectado`;
 
                 statusConexao.style.color =
                     "#6fda8b";
@@ -2918,7 +2935,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.red}" class="icone" alt=""> Desconectado`;
+                    `<img src="${ICONES.red}" class="icone" alt=""> desconectado`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -2932,7 +2949,7 @@
             () => {
 
                 statusConexao.innerHTML =
-                    `<img src="${ICONES.red}" class="icone" alt=""> Erro na conexão`;
+                    `<img src="${ICONES.red}" class="icone" alt=""> erro na conexão`;
 
                 statusConexao.style.color =
                     "#ff7777";
@@ -2947,8 +2964,8 @@
 
                 if (botaoJogarNovamente) {
                     botaoJogarNovamente.disabled = false;
-                    botaoJogarNovamente.textContent =
-                        "🔄 Jogar novamente";
+                    botaoJogarNovamente.innerHTML =
+                        `<img src="${ICONES.rotation}" class="icone" alt=""> jogar novamente`;
                 }
 
                 if (botaoVoltarInicio) {
@@ -3596,7 +3613,7 @@
                 atualizarChatEstado();
                 tocarLobby();
                 mostrarAviso(
-                    "🔄 sala reiniciada!"
+                    "sala reiniciada!"
                 );
 
             }
@@ -3658,8 +3675,8 @@
 
                     botao.type = "button";
                     botao.className = "opcao-host";
-                    botao.textContent =
-                        "👑 " + jogador.nome;
+                    botao.innerHTML =
+                        `<img src="${ICONES.crown}" class="icone" alt=""> ${jogador.nome}`;
 
                     botao.addEventListener(
                         "click",
@@ -4504,10 +4521,10 @@
                 botaoVotarReinicio.disabled =
                     jaVotei || votos >= total;
 
-                botaoVotarReinicio.textContent =
+                botaoVotarReinicio.innerHTML =
                     jaVotei
                         ? "✅ voto registrado"
-                        : "🔄 votar para reiniciar";
+                        : `<img src="${ICONES.rotation}" class="icone" alt=""> votar para reiniciar`;
 
             }
 
@@ -4524,8 +4541,8 @@
 
             if (botaoVotarReinicio) {
                 botaoVotarReinicio.disabled = false;
-                botaoVotarReinicio.textContent =
-                    "🔄 votar para reiniciar";
+                botaoVotarReinicio.innerHTML =
+                    `<img src="${ICONES.rotation}" class="icone" alt=""> votar para reiniciar`;
             }
 
             if (votacaoStatus) {
@@ -4872,8 +4889,8 @@
                     .getElementById(
                         "estado-partida"
                     )
-                    .textContent =
-                        "💀 você foi eliminado";
+                    .innerHTML =
+                        `<img src="${ICONES.skull}" class="icone" alt=""> você foi eliminado`;
 
                 atualizarChatEstado();
 
@@ -4908,8 +4925,8 @@
                     botaoVoltarInicio.disabled =
                         true;
 
-                    botaoJogarNovamente.textContent =
-                        "🔄 iniciando...";
+                    botaoJogarNovamente.innerHTML =
+                        `<img src="${ICONES.rotation}" class="icone" alt=""> iniciando...`;
 
                     socket.emit(
                         "comecar_jogo"
@@ -5026,13 +5043,13 @@
 
                 if (votacaoStatus) {
                     votacaoStatus.textContent =
-                        "✅ todos votaram! reiniciando a partida...";
+                        "✅ todos votaram! Reiniciando a partida...";
                 }
 
                 if (botaoVotarReinicio) {
                     botaoVotarReinicio.disabled = true;
-                    botaoVotarReinicio.textContent =
-                        "🔄 reiniciando...";
+                    botaoVotarReinicio.innerHTML =
+                        `<img src="${ICONES.rotation}" class="icone" alt=""> reiniciando...`;
                 }
 
             }

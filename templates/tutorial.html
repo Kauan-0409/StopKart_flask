@@ -17,7 +17,7 @@ main{width:min(1100px,calc(100% - 32px));margin:28px auto 60px}.titulo-pagina h1
 .jogo-grid{display:grid;grid-template-columns:1fr 360px;gap:20px}.card{background:#191a20;border:1px solid #292b31;border-radius:14px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
 .letra-card{min-height:370px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.letra-label{color:#999;font-size:14px}.letra{font-size:105px;line-height:1;font-weight:800;margin:20px 0 14px}.instrucao{color:#aaa;margin:0}
 .status{display:flex;gap:42px;margin-top:30px;padding-top:22px;border-top:1px solid #292b31}.status div{text-align:center;color:#aaa;font-size:13px}.status strong{display:block;margin-top:6px;color:#fff;font-size:17px}
-.icone{width:18px;height:18px;vertical-align:-4px;object-fit:contain}.icone-titulo{width:24px;height:24px;vertical-align:-5px;object-fit:contain}h2{margin-top:0;font-size:20px}
+.icone{width:18px;height:18px;vertical-align:-4px;object-fit:contain}.icone-titulo{width:24px;height:24px;vertical-align:-5px;object-fit:contain}.icone-graduacao{width:22px;height:22px;vertical-align:-5px;object-fit:contain}h2{margin-top:0;font-size:20px}
 .entrada{display:flex;gap:9px;margin-top:18px}#campo-carro{flex:1;min-width:0;padding:13px 14px;border:1px solid #34363e;border-radius:10px;outline:none;background:#111216;color:#fff;font-size:15px}#campo-carro:focus{border-color:#777}#campo-carro:disabled{opacity:.45;cursor:not-allowed}
 .acao{padding:13px 18px;border-radius:10px;background:#f2f2f2;color:#111;font-weight:800;cursor:pointer}.acao:hover:not(:disabled){transform:translateY(-1px)}.acao:disabled{opacity:.4;cursor:not-allowed}
 #carros-enviados{margin-top:18px}.carro-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin-bottom:8px;background:#22242a;border-radius:9px}.carro-ok{color:#8fda9b;font-size:13px;font-weight:700}
@@ -40,15 +40,15 @@ main{width:min(1100px,calc(100% - 32px));margin:28px auto 60px}.titulo-pagina h1
 </head>
 <body>
 <header><div class="header-inner"><div class="header-title">
-<img src="{{ url_for('static', filename='icons/Logo_Icon.svg') }}" class="logo" alt="StopKart">
-<div>Tutorial 🎓 <span>Aprenda jogando</span></div></div>
+<img src="{{ url_for('static', filename='RodaStopkart.png') }}" class="logo" alt="StopKart">
+<div><img src="{{ url_for('static', filename='icons/GraduationCap_Icon.svg') }}" class="icone-graduacao" alt=""> Tutorial <span>Aprenda jogando</span></div></div>
 <button class="btn-voltar" onclick="voltarInicio()">← Voltar</button></div></header>
 
 <main>
-<div class="titulo-pagina"><h1>Tutorial do StopKart 🎓</h1><p>Uma partida guiada para você aprender as regras na prática.</p></div>
+<div class="titulo-pagina"><h1><img src="{{ url_for('static', filename='icons/GraduationCap_Icon.svg') }}" class="icone-graduacao" alt=""> Tutorial do StopKart</h1><p>Uma partida guiada para você aprender as regras na prática.</p></div>
 <div class="jogo-grid">
 <div class="card letra-card" id="card-letra">
-<div class="letra-label">Letra sorteada</div><h1 id="letra" class="letra">?</h1><p class="instrucao">digite um modelo de carro</p>
+<div class="letra-label">Letra sorteada</div><h1 id="letra" class="letra">?</h1><p class="instrucao">Digite um modelo de carro</p>
 <div class="status">
 <div id="status-rodada">Rodada<strong id="rodada">0/5</strong></div>
 <div id="status-pontos"><img src="{{ url_for('static', filename='icons/Star_Icon.svg') }}" class="icone" alt=""> Pontos<strong id="meus-pontos">0</strong></div>
@@ -57,7 +57,7 @@ main{width:min(1100px,calc(100% - 32px));margin:28px auto 60px}.titulo-pagina h1
 </div></div>
 <div class="card" id="card-respostas">
 <h2><img src="{{ url_for('static', filename='icons/Car_Icon.svg') }}" class="icone-titulo" alt=""> Respostas</h2>
-<div class="entrada"><input id="campo-carro" placeholder="aguarde o tutorial..." disabled autocomplete="off"><button id="botao-carro" class="acao" disabled>Enviar</button></div>
+<div class="entrada"><input id="campo-carro" placeholder="Aguarde o tutorial..." disabled autocomplete="off"><button id="botao-carro" class="acao" disabled>Enviar</button></div>
 <div id="carros-enviados"></div>
 </div></div>
 </main>
@@ -72,8 +72,8 @@ main{width:min(1100px,calc(100% - 32px));margin:28px auto 60px}.titulo-pagina h1
 </div></div>
 
 <div id="resultado-overlay"><div id="resultado-modal">
-<h2 id="resultado-titulo">Tutorial concluído! 🎓</h2><p id="resultado-mensagem"></p>
-<div class="resultado-stats"><div class="resultado-stat"><span>Pontos</span><strong id="resultado-pontos">0</strong></div><div class="resultado-stat"><span>Vidas restantes</span><strong id="resultado-vidas">0</strong></div></div>
+<h2 id="resultado-titulo"><img src="{{ url_for('static', filename='icons/GraduationCap_Icon.svg') }}" class="icone-graduacao" alt=""> Tutorial concluído!</h2><p id="resultado-mensagem"></p>
+<div class="resultado-stats"><div class="resultado-stat"><span>Pontos</span><strong id="resultado-pontos">0</strong></div><div class="resultado-stat"><span>vidas restantes</span><strong id="resultado-vidas">0</strong></div></div>
 <div class="resultado-botoes"><button id="btn-jogar-novamente">Jogar novamente</button><button id="btn-voltar-inicio">Voltar ao início</button></div>
 </div></div>
 
@@ -87,6 +87,18 @@ const kicker=$("tutorial-kicker"),titulo=$("tutorial-title"),texto=$("tutorial-t
 let tutorialAtivo=true,etapaAtual=0,digitando=false,respostaEnviada=false,acao=null,total=5,letraAtual=null;
 
 function fmt(s){s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function tituloComIcone(t){
+    const base = {
+        "🎓": "{{ url_for('static', filename='icons/GraduationCap_Icon.svg') }}",
+        "❤️": "{{ url_for('static', filename='icons/Heart_Icon.svg') }}",
+        "⏱️": "{{ url_for('static', filename='icons/Timer_Icon.svg') }}"
+    };
+    let html = esc(t);
+    for(const [emoji,src] of Object.entries(base)){
+        html = html.replace(emoji, `<img src="${src}" class="icone" alt="">`);
+    }
+    return html;
+}
 function esperar(ms){return new Promise(r=>setTimeout(r,ms))}
 function aviso(t){const x=document.createElement("div");x.className="aviso";x.textContent=t;$("avisos").appendChild(x);setTimeout(()=>x.remove(),2800)}
 function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML}
@@ -111,9 +123,9 @@ texto.classList.add("finished");digitando=false;if(acao?.elemento)acao.elemento.
 
 function etapas(){
 return[
-[$("card-letra"),"Bem-Vindo ao StopKart 🎓","Aqui você vai aprender o jogo na prática. Primeiro vamos conhecer cada parte da tela.","next"],
-[letra,"1. A letra sorteada","Essa é a letra da rodada. Você precisa mandar um modelo de carro que comece com ela.","next"],
-[$("status-rodada"),"2. Rodada","Aqui aparece em qual rodada você está. O tutorial tem 5 rodadas.","next"],
+[$("card-letra"),"Bem-vindo ao StopKart 🎓","Aqui você vai aprender o jogo na prática. Primeiro vamos conhecer cada parte da tela.","next"],
+[letra,"1. Letra sorteada","Essa é a letra da rodada. Você precisa mandar um modelo de carro que comece com ela (Sem marca no começo).","next"],
+[$("status-rodada"),"2. Rodada","Aqui aparece em qual rodada você está e quantas estão definidas. O tutorial tem 5 rodadas.","next"],
 [$("status-pontos"),"3. Pontos","Cada resposta correta vale 1 ponto. Quanto mais rodadas você completar, mais pontos acumula.","next"],
 [$("status-vidas"),"4. Vidas ❤️","Você começa com 3 vidas. Uma resposta inválida ou o tempo acabar sem responder faz você perder uma vida.","next"],
 [$("status-tempo"),"5. Tempo ⏱️","Esse relógio mostra quanto tempo resta na rodada. Quando chegar a zero, a rodada termina.","next"],
@@ -124,7 +136,7 @@ let passos=etapas();
 
 async function mostrar(i){
 if(!tutorialAtivo)return;if(i>=passos.length){finalizarGuia();return}
-etapaAtual=i;const [el,t,txt,tipo]=passos[i];acao={elemento:el,tipo};kicker.textContent=`tutorial • ${i+1}/${passos.length}`;titulo.textContent=t;next.textContent=tipo==="liberar"?"começar":"próximo";next.style.display="inline-block";spot(el);await typeText(txt);if(!tutorialAtivo)return;
+etapaAtual=i;const [el,t,txt,tipo]=passos[i];acao={elemento:el,tipo};kicker.textContent=`tutorial • ${i+1}/${passos.length}`;titulo.innerHTML=tituloComIcone(t);next.textContent=tipo==="Liberar"?"Começar":"Próximo";next.style.display="inline-block";spot(el);await typeText(txt);if(!tutorialAtivo)return;
 if(tipo==="campo"){
 campo.disabled=false;campo.focus();let feito=false;const ok=()=>{if(feito||digitando)return;feito=true;campo.removeEventListener("focus",ok);campo.removeEventListener("click",ok);mostrar(i+1)};campo.addEventListener("focus",ok,{once:true});campo.addEventListener("click",ok,{once:true});
 }else if(tipo==="enviar"){botao.disabled=false}else if(tipo==="liberar"){next.disabled=false}else next.disabled=false
@@ -168,7 +180,7 @@ socket.on("tutorial_resposta_carro",d=>{if(d.vidas!==undefined)vidas.textContent
 socket.on("tutorial_rodada_terminou",d=>{if(d.vidas!==undefined)vidas.textContent=d.vidas;if(d.pontos!==undefined)pontos.textContent=d.pontos;respostaEnviada=false});
 socket.on("tutorial_terminou",d=>{
 tutorialAtivo=false;esconderSpot();layer.style.display="none";bloquear();$("resultado-overlay").style.display="flex";$("resultado-pontos").textContent=d.pontos??0;$("resultado-vidas").textContent=d.vidas??0;
-$("resultado-titulo").textContent=d.eliminado?"Fim do tutorial 💀":"Tutorial concluído!! 🎓";$("resultado-mensagem").textContent=d.eliminado?"Você perdeu todas as vidas. Pode tentar novamente.":"Boa! Você completou as 5 rodadas de treinamento."
+$("resultado-titulo").innerHTML=d.eliminado?`<img src="{{ url_for('static', filename='icons/Skull_Icon.svg') }}" class="icone-graduacao" alt=""> fim do tutorial`:`<img src="{{ url_for('static', filename='icons/GraduationCap_Icon.svg') }}" class="icone-graduacao" alt=""> tutorial concluído`;$("resultado-mensagem").textContent=d.eliminado?"vc perdeu todas as vidas. pode tentar novamente.":"boa! vc completou as 5 rodadas de treinamento."
 });
 
 $("btn-jogar-novamente").onclick=()=>{location.reload()};
